@@ -1,0 +1,11 @@
+# Ignore compilation dirs
+server/obj/
+server/bin/
+server/dep/
+client/obj/
+client/bin/
+client/dep/
+
+# Ignore vim files (if any)
+.*
+*~
