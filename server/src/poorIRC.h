@@ -9,6 +9,9 @@
 #include <sys/socket.h>
 #include <netdb.h>
 
+#define POORIRC_MODE_DEBUG 0x01
+#define POORIRC_MODE_BG    0x02
+
 /*
  * struct poorIRC_config
  * Structure holding configuration of poorIRC server.
@@ -48,6 +51,15 @@ struct poorIRC_server {
 	struct addrinfo serv_info;
 
 };
+
+/*
+ * Initialization of server instance, returns 0 on success, and non-zero value
+ * on failure. Allocates memory for struct poorIRC_server instance.
+ */
+
+int poorIRC_init(struct poorIRC_config *cfg, struct poorIRC_server *srv);
+int poorIRC_setup(int argc, char **argv, struct poorIRC_config *cfg);
+
 
 #endif /* _POORIRC_H */
 
