@@ -13,20 +13,6 @@ int main(int argc, char **argv)
 	struct poorIRC_config *server_config   = NULL;
 	struct poorIRC_server *server_instance = NULL;
 
-	unsigned short i = 0;
-
-
-	printf("Welcome to poorIRC. The shitty IRC rip-off\n");
-	printf("Number of arguments: %d\n", argc - 1);
-
-	for(i = 0; i < argc; i++) {
-
-		if(i == 0)
-			printf("Command: %s\n", argv[i]);
-		else
-			printf("Argument %2u: %s\n", i, argv[i]);
-
-	}
 
 	if(poorIRC_setup(argc, argv, server_config) != 0) {
 
@@ -45,4 +31,3 @@ int main(int argc, char **argv)
 	return EXIT_SUCCESS;
 
 }
-
