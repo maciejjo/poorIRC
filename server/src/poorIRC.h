@@ -7,6 +7,7 @@
 
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <arpa/inet.h>
 #include <netdb.h>
 
 #define POORIRC_MODE_DEBUG 0x01
@@ -28,7 +29,7 @@ struct poorIRC_config {
 
 	unsigned short int max_connections;
 	unsigned char      mode;
-	unsigned int       port_no;
+	char               port_no[6];
 	/* ... */
 
 };
@@ -46,9 +47,10 @@ struct poorIRC_server {
 
 	int listen_fd;
 	int client_fd;
-	
+
 	struct addrinfo hints;
-	struct addrinfo serv_info;
+	struct addrinfo *address_list;
+	struct sockaddr_storage client_addr;
 
 };
 
@@ -57,8 +59,9 @@ struct poorIRC_server {
  * on failure. Allocates memory for struct poorIRC_server instance.
  */
 
-int poorIRC_init(struct poorIRC_config *cfg, struct poorIRC_server *srv);
-int poorIRC_setup(int argc, char **argv, struct poorIRC_config *cfg);
+int poorIRC_setup(int argc, char **argv, struct poorIRC_config **cfg);
+int poorIRC_init(const struct poorIRC_config *cfg, struct poorIRC_server **srv);
+int poorIRC_serve(const struct poorIRC_config *cfg, struct poorIRC_server **srv);
 
 
 #endif /* _POORIRC_H */

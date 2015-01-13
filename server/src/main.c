@@ -14,16 +14,23 @@ int main(int argc, char **argv)
 	struct poorIRC_server *server_instance = NULL;
 
 
-	if(poorIRC_setup(argc, argv, server_config) != 0) {
+	if(poorIRC_setup(argc, argv, &server_config) != 0) {
 
 		fprintf(stderr, "Server configuration failed, exiting...\n");
 		return EXIT_FAILURE;
 
 	}
 
-	if(poorIRC_init(server_config, server_instance) != 0) {
+	if(poorIRC_init(server_config, &server_instance) != 0) {
 
 		fprintf(stderr, "Server initialization failed, exiting...\n");
+		return EXIT_FAILURE;
+
+	}
+
+	if(poorIRC_serve(server_config, &server_instance) != 0) {
+
+		fprintf(stderr, "Server stoped working, exiting...\n");
 		return EXIT_FAILURE;
 
 	}
