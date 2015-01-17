@@ -197,6 +197,29 @@ int poorIRC_serve(const struct poorIRC_config *cfg, struct poorIRC_server **srv)
 
 		printf("Server: Got connection from %s\n", address_string);
 
+		if(!fork()) {
+
+			/*
+			 * We are the child process
+			 */
+
+			close((*srv)->listen_fd);
+
+			if(send((*srv)->client_fd, "Hello world",
+					strlen("Hello world"), 0) == -1) {
+				
+				fprintf(stderr, "Error: send() failed with status: "
+						"%s\n", strerror(errno));
+
+			}
+
+			close((*srv)->client_fd);
+			return 1;
+
+		}
+
+
+
 	}
 
 	return 0;
