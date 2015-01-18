@@ -5,7 +5,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "poorIRC.h"
+/*
+#include <poorIRC.h>
+*/
+#include "../../include/poorIRC.h"
 
 int main(int argc, char **argv)
 {

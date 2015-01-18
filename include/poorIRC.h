@@ -13,6 +13,9 @@
 #define POORIRC_MODE_DEBUG 0x01
 #define POORIRC_MODE_BG    0x02
 
+#define POORIRC_UNAME_MAX_LEN 8
+#define POORIRC_MSG_MAX_LEN   128
+
 /*
  * struct poorIRC_config
  * Structure holding configuration of poorIRC server.
@@ -53,6 +56,20 @@ struct poorIRC_server {
 	struct sockaddr_storage client_addr;
 
 };
+
+/*
+ * struct poorIRC_message
+ * This structure is passed between clients and server.
+ */
+
+struct poorIRC_message {
+
+	unsigned char len;
+	char          username[POORIRC_UNAME_MAX_LEN];
+	char          message_body[POORIRC_MSG_MAX_LEN];
+
+};
+
 
 /*
  * Initialization of server instance, returns 0 on success, and non-zero value

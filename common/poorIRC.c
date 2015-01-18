@@ -2,7 +2,7 @@
  * This file contains functions to set up and run poorIRC server.
  */
 
-#include "poorIRC.h"
+#include "../include/poorIRC.h"
 
 #include <stdlib.h>
 #include <stdio.h>

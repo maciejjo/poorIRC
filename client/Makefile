@@ -1,4 +1,4 @@
-TARGET	= ircserver
+TARGET	= ircclient
 CFLAGS	= -Wall -Wextra -Wno-unused-parameter -pedantic -O2 -g
 LFLAGS	= 
 
