@@ -4,8 +4,8 @@
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-    client w;
-    w.show();
+    client ircClient;
+    ircClient.show();
 
     return a.exec();
 }

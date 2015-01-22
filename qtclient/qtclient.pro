@@ -11,6 +11,9 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = qtclient
 TEMPLATE = app
 
+LIBS += -lwsock32
+
+INCLUDEPATH += ../common/
 
 SOURCES += main.cpp\
         client.cpp

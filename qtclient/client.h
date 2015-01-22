@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 
+
 namespace Ui {
 class client;
 }
@@ -14,6 +15,9 @@ class client : public QMainWindow
 public:
     explicit client(QWidget *parent = 0);
     ~client();
+
+private slots:
+    void on_connectButton_clicked();
 
 private:
     Ui::client *ui;
