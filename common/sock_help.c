@@ -45,7 +45,7 @@ int get_tcp_socket(const char *port, char *hostname, char flags)
 		inet_ntop(p->ai_family, get_in_addr((struct sockaddr *) p->ai_addr),
 					addr_str, sizeof(addr_str));
 
-		printf("Trying to connect to %s\n", addr_str);
+		printf("get_tcp_socket: Trying to connect to %s...\n", addr_str);
 
 
 
@@ -97,6 +97,7 @@ int get_tcp_socket(const char *port, char *hostname, char flags)
 
 	freeaddrinfo(address_list);
 
+	printf("get_tcp_socket: Connected!\n");
 	return fd;
 
 }

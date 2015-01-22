@@ -109,7 +109,6 @@ int poorIRC_init(struct poorIRC_config *cfg, struct poorIRC_server **srv)
 
 	}
 
-
 	if(listen((*srv)->listen_fd, cfg->max_connections) != 0) {
 
 		fprintf(stderr, "Error: listen() failed with status: %s\n",
@@ -118,6 +117,7 @@ int poorIRC_init(struct poorIRC_config *cfg, struct poorIRC_server **srv)
 
 	}
 
+	printf("Initialization OK!\n");
 	return 0;
 
 }
@@ -125,10 +125,15 @@ int poorIRC_init(struct poorIRC_config *cfg, struct poorIRC_server **srv)
 int poorIRC_wait_for_client(struct poorIRC_server *srv)
 {
 
+
 	socklen_t sin_size;
 	char address_string[INET6_ADDRSTRLEN];
 
+	printf("Entering waiting for client loop.\n");
+
 	while(1) {
+
+		printf("Waiting loop: waiting for next client...\n");
 
 		sin_size = sizeof(srv->client_addr);
 
@@ -146,7 +151,8 @@ int poorIRC_wait_for_client(struct poorIRC_server *srv)
 			get_in_addr((struct sockaddr *) &(srv->client_addr)), 
 			address_string, sizeof(address_string));
 
-		printf("Server: Got connection from %s\n", address_string);
+		printf("Server: Got connection from %s, "
+			"forking client process...\n", address_string);
 
 		if(!fork()) {
 

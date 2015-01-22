@@ -18,7 +18,7 @@ int main(int argc, char **argv)
 	struct poorIRC_response res;
 	struct poorIRC_message  msg;
 
-	printf("Welcome to poorIRC client %d\n", argc);
+	printf("Welcome to poorIRC client\n");
 
 	if(argc != 3) {
 
