@@ -2,10 +2,11 @@
  * This is main file of the IRC-like server.
  */
 
+#include "poorIRC_server.h"
+#include "../../include/poorIRC_proto.h"
+
 #include <stdio.h>
 #include <stdlib.h>
-
-#include "../../include/poorIRC.h"
 
 int main(int argc, char **argv)
 {
@@ -28,9 +29,9 @@ int main(int argc, char **argv)
 
 	}
 
-	if(poorIRC_serve(server_config, &server_instance) != 0) {
+	if(poorIRC_wait_for_client(server_instance) != 0) {
 
-		fprintf(stderr, "Server stoped working, exiting...\n");
+		fprintf(stderr, "Server stopped working, exiting...\n");
 		return EXIT_FAILURE;
 
 	}
@@ -38,3 +39,4 @@ int main(int argc, char **argv)
 	return EXIT_SUCCESS;
 
 }
+

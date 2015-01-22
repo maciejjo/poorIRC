@@ -13,9 +13,6 @@
 #define POORIRC_MODE_DEBUG 0x01
 #define POORIRC_MODE_BG    0x02
 
-#define POORIRC_UNAME_MAX_LEN 8
-#define POORIRC_MSG_MAX_LEN   128
-
 /*
  * struct poorIRC_config
  * Structure holding configuration of poorIRC server.
@@ -46,27 +43,12 @@ struct poorIRC_config {
 
 struct poorIRC_server {
 
-	struct poorIRC_config *config;
+	const struct poorIRC_config *config;
 
 	int listen_fd;
 	int client_fd;
 
-	struct addrinfo hints;
-	struct addrinfo *address_list;
 	struct sockaddr_storage client_addr;
-
-};
-
-/*
- * struct poorIRC_message
- * This structure is passed between clients and server.
- */
-
-struct poorIRC_message {
-
-	unsigned char len;
-	char          username[POORIRC_UNAME_MAX_LEN];
-	char          message_body[POORIRC_MSG_MAX_LEN];
 
 };
 
@@ -77,8 +59,9 @@ struct poorIRC_message {
  */
 
 int poorIRC_setup(int argc, char **argv, struct poorIRC_config **cfg);
-int poorIRC_init(const struct poorIRC_config *cfg, struct poorIRC_server **srv);
-int poorIRC_serve(const struct poorIRC_config *cfg, struct poorIRC_server **srv);
+int poorIRC_init(struct poorIRC_config *cfg, struct poorIRC_server **srv);
+int poorIRC_wait_for_client(struct poorIRC_server *srv);
+int poorIRC_serve(struct poorIRC_server *srv);
 
 
 #endif /* _POORIRC_H */

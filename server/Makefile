@@ -45,7 +45,7 @@ $(CMN_OBJ) : $(OBJDIR)/%.o : $(CMNDIR)/%.c
 
 .PHONY: clean
 clean:
-	$(REMOVE) $(OBJECTS) $(OBJDIR) $(BINDIR)
+	$(REMOVE) $(OBJECTS) $(OBJDIR) $(BINDIR) $(DEPDIR)
 	@echo "Deleted $<"
 
 .PHONY: remove
