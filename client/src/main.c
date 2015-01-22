@@ -14,6 +14,7 @@ int main(int argc, char **argv)
 
 	int socket;
 	int num;
+	size_t ln;
 
 	struct poorIRC_response res;
 	struct poorIRC_message  msg;
@@ -36,33 +37,51 @@ int main(int argc, char **argv)
 
 	printf("Socket successfully obtained\n");
 
-	strcpy(msg.body, "dupa janek");
-	msg.len = strlen(msg.body) + 1;
+	while(1) {
 
-	if(send(socket, &(msg.len), sizeof(msg.len), 0) == -1) {
+		printf("Enter message: ");
+		fgets(msg.body, POORIRC_MSG_MAX_LEN, stdin);
 
-		fprintf(stderr, "Error: send() failed with status: "
-				"%s\n", strerror(errno));
+		ln = strlen(msg.body) - 1;
 
-	}
+		if (msg.body[ln] == '\n')
+			msg.body[ln] = '\0';
 
-	if(send(socket, &(msg.body), msg.len, 0) == -1) {
+		strtok(msg.body, "\n");
+		msg.len = strlen(msg.body) + 1;
 
-		fprintf(stderr, "Error: send() failed with status: "
-				"%s\n", strerror(errno));
+		printf("Trying to send message...\n");
 
-	}
+		if(send(socket, &(msg.len), sizeof(msg.len), 0) == -1) {
 
-	if((num = recv(socket, &res, sizeof(res), 0)) == -1) {
+			fprintf(stderr, "Error: send() failed with status: "
+					"%s\n", strerror(errno));
 
-		fprintf(stderr, "Error: recv() failed with status: %s\n", strerror(errno));
-		return EXIT_FAILURE;
+		}
 
-	}
 
-	if(res.status == POORIRC_STATUS_OK) {
+		if(send(socket, &(msg.body), msg.len, 0) == -1) {
 
-		printf("Status OK received\n");
+			fprintf(stderr, "Error: send() failed with status: "
+					"%s\n", strerror(errno));
+
+		}
+
+		printf("Success!\n");
+		printf("Waiting for server response...\n");
+
+		if((num = recv(socket, &res, sizeof(res), 0)) == -1) {
+
+			fprintf(stderr, "Error: recv() failed with status: %s\n", strerror(errno));
+			return EXIT_FAILURE;
+
+		}
+
+		if(res.status == POORIRC_STATUS_OK) {
+
+			printf("Status OK received\n");
+
+		}
 
 	}
 

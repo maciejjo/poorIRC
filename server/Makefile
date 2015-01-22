@@ -1,6 +1,6 @@
 TARGET	= ircserver
 CFLAGS	= -Wall -Wextra -Wno-unused-parameter -pedantic -O2 -g
-LFLAGS	= 
+LFLAGS	= -pthread
 
 SRCDIR	= src
 OBJDIR	= obj

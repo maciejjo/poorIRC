@@ -1,8 +1,8 @@
 #ifndef POORIRC_PROTO_H
 #define POORIRC_PROTO_H
 
-#define POORIRC_UNAME_MAX_LEN 8
 #define POORIRC_MSG_MAX_LEN   128
+#define POORIRC_NICKNAME_MAX_LEN 16
 
 /*
  * struct poorIRC_message

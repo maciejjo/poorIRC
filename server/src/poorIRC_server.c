@@ -4,7 +4,6 @@
 
 #include "poorIRC_server.h"
 #include "../../include/sock_help.h"
-#include "../../include/poorIRC_proto.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -12,6 +11,9 @@
 #include <errno.h>
 #include <getopt.h>
 #include <unistd.h>
+
+#include <sys/mman.h>
+#include <semaphore.h>
 
 int poorIRC_setup(int argc, char **argv, struct poorIRC_config **cfg)
 {
@@ -100,6 +102,24 @@ int poorIRC_init(struct poorIRC_config *cfg, struct poorIRC_server **srv)
 
 	}
 
+	if(((*srv)->shared_data.buffer = mmap(NULL, sizeof(struct poorIRC_message),
+					PROT_READ | PROT_WRITE, MAP_ANON |
+					MAP_SHARED, -1, 0)) == MAP_FAILED) {
+
+		fprintf(stderr, "Error: mmap() failed with status: %s\n",
+				strerror(errno));
+		return 1;
+
+	}
+
+	if(sem_init(&((*srv)->shared_data.buffer_mutex), 1, 0) == -1) {
+
+		fprintf(stderr, "Error: sem_init() failed with status: %s\n",
+				strerror(errno));
+		return 1;
+
+	}
+
 	(*srv)->config = cfg;
 
 	if(((*srv)->listen_fd = get_tcp_socket((*srv)->config->port_no, NULL, SOCKET_BIND | SOCKET_REUS)) == -1) {
@@ -173,16 +193,22 @@ int poorIRC_serve(struct poorIRC_server *srv)
 
 	struct poorIRC_message  msg;
 	struct poorIRC_response res;
+
 	int num;
+	pid_t mypid;
+
+	mypid = getpid();
 
 	res.status = POORIRC_STATUS_OK;
 
 	memset(&msg, 0, sizeof(msg));
 
+	printf("(CHLD %d) In serving function, entering server loop.\n", mypid);
+
 
 	while(1) {
 
-		printf("In server loop\n");
+		printf("(CHLD %d) In server loop\n", mypid);
 		
 		if((num = recv(srv->client_fd, &(msg.len), sizeof(msg.len), 0)) == -1) {
 
@@ -193,46 +219,87 @@ int poorIRC_serve(struct poorIRC_server *srv)
 
 		if(num == 0) {
 
-			printf("Remote host closed connection. Bye!\n");
+			printf("(CHLD %d) Remote host closed connection. Bye!\n", mypid);
 			break;
 
 		}
 
-		printf("Received length: %d - %d bytes.\n", msg.len, num);
-		printf("Receiving message with given length...\n");
+		printf("(CHLD %d) Received length: %d\n", mypid, msg.len);
+		printf("(CHLD %d) Receiving message with given length...\n", mypid);
 
 		if((num = recv(srv->client_fd, &(msg.body), msg.len, 0)) == -1) {
 
-			fprintf(stderr, "Error: recv() failed with status "
-					"%s\n", strerror(errno));
+			fprintf(stderr, "(CHLD %d) Error: recv() failed with status "
+					"%s\n", mypid, strerror(errno));
 
 		}
 
-		printf("Got message: \"%s\" - %d bytes.\n", msg.body, num);
+
+		printf("(CHLD %d) Got message: \"%s\" - %d bytes.\n", mypid, msg.body, num);
 
 		if(num == 0) {
 
-			printf("Remote host closed connection. Bye!\n");
+			printf("(CHLD %d) Remote host closed connection. Bye!\n", mypid);
 			break;
 
 		}
 
-		printf("Sending OK status to client.\n");
+		printf("(CHLD %d) Sending OK status to client.\n", mypid);
 
 		res.status = POORIRC_STATUS_OK;
 
 		if(send(srv->client_fd, &res, sizeof(res), 0) == -1) {
 			
-			fprintf(stderr, "Error: send() failed with status: "
-					"%s\n", strerror(errno));
+			fprintf(stderr, "(CHLD %d) Error: send() failed with status: "
+					"%s\n", mypid, strerror(errno));
 
 		}
 
-		printf("End of loop.\n");
+		poorIRC_process_message(&msg);
+
+		printf("(CHLD %d) End of loop.\n", mypid);
 	}
 
 
 	close(srv->client_fd);
 	return 0;
 
+}
+
+int poorIRC_process_message(struct poorIRC_message *msg)
+{
+
+	printf("Process message routine\n");
+
+	if(msg->body[0] == '\0' || (msg->body[0] == '/' && msg->body[1] == '\0')) {
+
+		printf("Empty message, ommiting...\n");
+		return 0;
+
+	} else if(msg->body[0] == '/') {
+
+		printf("This is a command!\n");
+		poorIRC_process_command(msg);
+
+	} else {
+
+		printf("This is an usual message. Broadcasting.\n");
+		poorIRC_broadcast_message(msg);
+
+	}
+
+	return 0;
+
+}
+
+int poorIRC_process_command(struct poorIRC_message *msg)
+{
+
+	return 0;
+}
+
+int poorIRC_broadcast_message(struct poorIRC_message *msg)
+{
+
+	return 0;
 }
