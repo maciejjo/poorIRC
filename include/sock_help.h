@@ -1,15 +1,19 @@
 #ifndef SOCK_HELP_H
 #define SOCK_HELP_H
 
+#ifdef __linux__ 
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <netdb.h>
+#include <unistd.h>
+#elif _WIN32
+#include <winsock.h>
+#endif
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
-#include <unistd.h>
 
 #define SOCKET_BIND 0x01
 #define SOCKET_CONN 0x02

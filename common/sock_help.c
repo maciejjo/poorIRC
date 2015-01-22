@@ -17,11 +17,16 @@ int get_tcp_socket(const char *port, char *hostname, char flags)
 	int rv  = 0;
 	int yes = 1;
 
+
 	char addr_str[INET6_ADDRSTRLEN];
 
 	struct addrinfo hints;
 	struct addrinfo *address_list;
 	struct addrinfo *p = NULL;
+
+#ifdef _WIN32
+	WSADATA wsaData;
+#endif
 
 	memset(&hints, 0, sizeof(hints));
 	hints.ai_family        = AF_UNSPEC;
@@ -30,6 +35,17 @@ int get_tcp_socket(const char *port, char *hostname, char flags)
 	if(hostname == NULL) {
 		hints.ai_flags = AI_PASSIVE;
 	}
+
+#ifdef _WIN32
+
+	if (WSAStartup(MAKEWORD(1,1), &wsaData) != 0) {
+
+		fprintf(stderr, "WSAStartup failed.\n");
+		return -1;
+
+	}
+#endif
+	
 
 
 	if((rv = getaddrinfo(hostname, port, &hints, &address_list)) != 0) {
@@ -70,7 +86,11 @@ int get_tcp_socket(const char *port, char *hostname, char flags)
 
 			fprintf(stderr, "Error: bind() failed with status: "
 					"%s\n", strerror(errno));
+#ifdef __linux__ 
 			close(fd);
+#elif _WIN32
+			closesocket(fd);
+#endif
 			continue;
 
 		}
@@ -79,7 +99,11 @@ int get_tcp_socket(const char *port, char *hostname, char flags)
 
 			fprintf(stderr, "Error: connect() failed with status: "
 					"%s\n", strerror(errno));
+#ifdef __linux__ 
 			close(fd);
+#elif _WIN32
+			closesocket(fd);
+#endif
 			continue;
 
 		}
