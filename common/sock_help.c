@@ -58,7 +58,12 @@ int get_tcp_socket(const char *port, char *hostname, char flags)
 
 	for(p = address_list; p != NULL; p = p->ai_next) {
 
+#ifdef __linux__
+        inet_ntop(p->ai_family, get_in_addr((struct sockaddr *) p->ai_addr),
+                    addr_str, sizeof(addr_str));
 
+        printf("get_tcp_socket: Trying to connect to %s...\n", addr_str);
+#endif
 
 
 		if((fd = socket(p->ai_family, p->ai_socktype,
