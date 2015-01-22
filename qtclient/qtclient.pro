@@ -11,13 +11,15 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = qtclient
 TEMPLATE = app
 
-LIBS += -lwsock32
-
-INCLUDEPATH += ../common/
 
 SOURCES += main.cpp\
-        client.cpp
+        client.cpp \
+    ../common/sock_help.c
 
-HEADERS  += client.h
+HEADERS  += client.h \
+    ../include/poorIRC_proto.h \
+    ../include/sock_help.h
 
 FORMS    += client.ui
+
+win32: LIBS += -lws2_32

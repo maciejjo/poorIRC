@@ -8,7 +8,8 @@
 #include <netdb.h>
 #include <unistd.h>
 #elif _WIN32
-#include <winsock.h>
+#include <Ws2tcpip.h>
+#include <winsock2.h>
 #endif
 #include <stdlib.h>
 #include <stdio.h>

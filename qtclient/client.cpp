@@ -1,6 +1,8 @@
 #include "client.h"
 #include "ui_client.h"
-
+extern "C" {
+#include "../include/sock_help.h"
+}
 client::client(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::client)
@@ -23,6 +25,13 @@ void client::on_connectButton_clicked()
     }
     else
         ui->portLabelInvalid->setText("INVALID PORT!");
+
+    char flag = SOCKET_CONN;
+    char *hostname = "192.168.0.18";
+
+
+    int ret = get_tcp_socket(ui->portNumber->text().toLocal8Bit().data(), hostname, flag);
+    printf("%d", ret);
 
 
 }

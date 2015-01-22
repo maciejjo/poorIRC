@@ -38,7 +38,7 @@ int get_tcp_socket(const char *port, char *hostname, char flags)
 
 #ifdef _WIN32
 
-	if (WSAStartup(MAKEWORD(1,1), &wsaData) != 0) {
+    if (WSAStartup(MAKEWORD(2,0), &wsaData) != 0) {
 
 		fprintf(stderr, "WSAStartup failed.\n");
 		return -1;
@@ -58,10 +58,6 @@ int get_tcp_socket(const char *port, char *hostname, char flags)
 
 	for(p = address_list; p != NULL; p = p->ai_next) {
 
-		inet_ntop(p->ai_family, get_in_addr((struct sockaddr *) p->ai_addr),
-					addr_str, sizeof(addr_str));
-
-		printf("get_tcp_socket: Trying to connect to %s...\n", addr_str);
 
 
 
