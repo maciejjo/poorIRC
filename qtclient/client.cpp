@@ -55,6 +55,7 @@ void client::on_connectButton_clicked()
 void client::on_sendButton_clicked()
 {
     struct poorIRC_message msg;
+    struct poorIRC_response res;
     msg.len = ui->sendMessage->text().length();
     if(0 == msg.len)
         return; // you have to actually send something
@@ -70,6 +71,16 @@ void client::on_sendButton_clicked()
     if(-1 == (send(socket, (char *)&(msg.body), msg.len, 0))) {
         return; //error with sending actual message
     }
+
+    if(-1 == (recv(socket, (char *)&res, sizeof(res), 0))) {
+        return;
+    }
+
+    if(res.status == POORIRC_STATUS_OK) {
+                printf("Status OK received\n");
+
+    }
+
     ui->sendMessage->clear();
 
 }
