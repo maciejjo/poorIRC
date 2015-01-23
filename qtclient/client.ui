@@ -84,6 +84,9 @@
       <height>20</height>
      </rect>
     </property>
+    <property name="text">
+     <string>2222</string>
+    </property>
    </widget>
    <widget class="QLabel" name="portLabel">
     <property name="geometry">
@@ -119,6 +122,9 @@
       <width>113</width>
       <height>20</height>
      </rect>
+    </property>
+    <property name="text">
+     <string>192.168.0.18</string>
     </property>
    </widget>
    <widget class="QLabel" name="ipLabel">

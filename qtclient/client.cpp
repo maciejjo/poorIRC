@@ -2,6 +2,7 @@
 #include "ui_client.h"
 extern "C" {
 #include "../include/sock_help.h"
+#include "../include/poorIRC_proto.h"
 }
 client::client(QWidget *parent) :
     QMainWindow(parent),
@@ -49,4 +50,26 @@ void client::on_connectButton_clicked()
 
 
     printf("Socket obtained!: %d\n", socket);
+}
+
+void client::on_sendButton_clicked()
+{
+    struct poorIRC_message msg;
+    msg.len = ui->sendMessage->text().length();
+    if(0 == msg.len)
+        return; // you have to actually send something
+    else if (127 <= msg.len){
+        return; // too much
+    }
+    else{
+        if (-1 == send(socket, (char *)&(msg.len), sizeof(msg.len), 0)){
+            return; //error with sending
+        }
+        strncpy(msg.body,ui->sendMessage->text().toLocal8Bit().data(), msg.len);
+    }
+    if(-1 == (send(socket, (char *)&(msg.body), msg.len, 0))) {
+        return; //error with sending actual message
+    }
+    ui->sendMessage->clear();
+
 }
