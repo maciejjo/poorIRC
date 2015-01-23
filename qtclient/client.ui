@@ -24,7 +24,7 @@
      </rect>
     </property>
    </widget>
-   <widget class="QLineEdit" name="messageEdit">
+   <widget class="QLineEdit" name="sendMessage">
     <property name="enabled">
      <bool>false</bool>
     </property>

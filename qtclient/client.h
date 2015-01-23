@@ -15,6 +15,7 @@ class client : public QMainWindow
 
 public:
     explicit client(QWidget *parent = 0);
+    int socket;
     ~client();
 
 private slots:

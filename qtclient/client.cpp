@@ -31,6 +31,11 @@ void client::on_connectButton_clicked()
             && ui->ipEdit->hasAcceptableInput()){
         ui->portLabelInvalid->setText("");
         ui->sendButton->setEnabled(true);
+        ui->sendMessage->setEnabled(true);
+        ui->connectButton->setText("CONNECTED!");
+        ui->connectButton->setEnabled(false);
+        ui->portNumber->setEnabled(false);
+        ui->ipEdit->setEnabled(false);
     }
     else
         ui->portLabelInvalid->setText("INVALID PORT!");
@@ -39,10 +44,9 @@ void client::on_connectButton_clicked()
     //just to be readible
     char *host = ui->ipEdit->text().toLocal8Bit().data();
     char *port = ui->portNumber->text().toLocal8Bit().data();
+    if(-1 == (socket = get_tcp_socket(port, host, flag)))
+        return;
 
 
-    int ret = get_tcp_socket(port, host, flag);
-    printf("%d", ret);
-
-
+    printf("Socket obtained!: %d\n", socket);
 }
