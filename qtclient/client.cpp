@@ -9,6 +9,14 @@ client::client(QWidget *parent) :
 {
     ui->setupUi(this);
     ui->portNumber->setValidator(new QIntValidator(1024,65535,this));
+    //IPv4 validation
+    QString ipRange = "(?:[0-1]?[0-9]?[0-9]|2[0-4][0-9]|25[0-5])";
+    QRegExp ipRegex ("^" + ipRange
+                     + "\\." + ipRange
+                     + "\\." + ipRange
+                     + "\\." + ipRange + "$");
+    QRegExpValidator *ipValidator = new QRegExpValidator(ipRegex, this);
+    ui->ipEdit->setValidator(ipValidator);
 }
 
 
@@ -19,7 +27,8 @@ client::~client()
 
 void client::on_connectButton_clicked()
 {
-    if(ui->portNumber->hasAcceptableInput()){
+    if(ui->portNumber->hasAcceptableInput()
+            && ui->ipEdit->hasAcceptableInput()){
         ui->portLabelInvalid->setText("");
         ui->sendButton->setEnabled(true);
     }
@@ -27,10 +36,12 @@ void client::on_connectButton_clicked()
         ui->portLabelInvalid->setText("INVALID PORT!");
 
     char flag = SOCKET_CONN;
-    char *hostname = "192.168.0.18";
+    //just to be readible
+    char *host = ui->ipEdit->text().toLocal8Bit().data();
+    char *port = ui->portNumber->text().toLocal8Bit().data();
 
 
-    int ret = get_tcp_socket(ui->portNumber->text().toLocal8Bit().data(), hostname, flag);
+    int ret = get_tcp_socket(port, host, flag);
     printf("%d", ret);
 
 
