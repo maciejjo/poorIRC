@@ -26,6 +26,7 @@ int get_tcp_socket(const char *port, char *hostname, char flags)
 
 #ifdef _WIN32
 	WSADATA wsaData;
+	unsigned long mode = 1;
 #endif
 
 	memset(&hints, 0, sizeof(hints));
@@ -109,6 +110,26 @@ int get_tcp_socket(const char *port, char *hostname, char flags)
 
 		}
 
+#ifdef __linux__ 
+		if((flags & SOCKET_NOBL) && fcntl(fd, F_SETFL, O_NONBLOCK) == -1) {
+
+			fprintf(stderr, "Error: fcntl() failed with status: "
+					"%s\n", strerror(errno));
+			close(fd);
+			continue;
+
+		}
+#elif _WIN32
+		if((flags & SOCKET_NOBL) && ioctlsocket(fd, FIONBIO, &mode) != 0) {
+
+			fprintf(stderr, "Error: fcntl() failed with status: "
+					"%s\n", strerror(errno));
+			close(fd);
+			continue;
+
+		}
+
+#endif
 		break;
 
 	}

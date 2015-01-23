@@ -300,6 +300,7 @@ int poorIRC_process_command(struct poorIRC_message *msg)
 
 int poorIRC_broadcast_message(struct poorIRC_message *msg, struct poorIRC_server *srv)
 {
+	printf("Broadcasting message\n");
 
 	sem_wait(&(srv->shared_data->buffer_mutex));
 
