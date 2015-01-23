@@ -42,7 +42,7 @@ struct poorIRC_config {
 struct poorIRC_server_shared {
 
 	/* Shared between forked processes */
-	struct poorIRC_message *buffer;
+	struct poorIRC_message buffer;
 	sem_t buffer_mutex;
 
 };
@@ -67,7 +67,7 @@ struct poorIRC_server {
 	/* Internet Address of current client */
 	struct sockaddr_storage client_addr;
 
-	struct poorIRC_server_shared shared_data;
+	struct poorIRC_server_shared *shared_data;
 
 };
 
@@ -88,9 +88,9 @@ int poorIRC_setup(int argc, char **argv, struct poorIRC_config **cfg);
 int poorIRC_init(struct poorIRC_config *cfg, struct poorIRC_server **srv);
 int poorIRC_wait_for_client(struct poorIRC_server *srv);
 int poorIRC_serve(struct poorIRC_server *srv);
-int poorIRC_process_message(struct poorIRC_message *msg);
+int poorIRC_process_message(struct poorIRC_message *msg, struct poorIRC_server *srv);
 int poorIRC_process_command(struct poorIRC_message *msg);
-int poorIRC_broadcast_message(struct poorIRC_message *msg);
+int poorIRC_broadcast_message(struct poorIRC_message *msg, struct poorIRC_server *srv);
 
 
 #endif /* _POORIRC_H */

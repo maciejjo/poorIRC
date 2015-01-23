@@ -102,7 +102,7 @@ int poorIRC_init(struct poorIRC_config *cfg, struct poorIRC_server **srv)
 
 	}
 
-	if(((*srv)->shared_data.buffer = mmap(NULL, sizeof(struct poorIRC_message),
+	if(((*srv)->shared_data = mmap(NULL, sizeof(struct poorIRC_server_shared),
 					PROT_READ | PROT_WRITE, MAP_ANON |
 					MAP_SHARED, -1, 0)) == MAP_FAILED) {
 
@@ -112,7 +112,7 @@ int poorIRC_init(struct poorIRC_config *cfg, struct poorIRC_server **srv)
 
 	}
 
-	if(sem_init(&((*srv)->shared_data.buffer_mutex), 1, 0) == -1) {
+	if(sem_init(&((*srv)->shared_data->buffer_mutex), 1, 1) == -1) {
 
 		fprintf(stderr, "Error: sem_init() failed with status: %s\n",
 				strerror(errno));
@@ -255,7 +255,7 @@ int poorIRC_serve(struct poorIRC_server *srv)
 
 		}
 
-		poorIRC_process_message(&msg);
+		poorIRC_process_message(&msg, srv);
 
 		printf("(CHLD %d) End of loop.\n", mypid);
 	}
@@ -266,7 +266,7 @@ int poorIRC_serve(struct poorIRC_server *srv)
 
 }
 
-int poorIRC_process_message(struct poorIRC_message *msg)
+int poorIRC_process_message(struct poorIRC_message *msg, struct poorIRC_server *srv)
 {
 
 	printf("Process message routine\n");
@@ -284,7 +284,7 @@ int poorIRC_process_message(struct poorIRC_message *msg)
 	} else {
 
 		printf("This is an usual message. Broadcasting.\n");
-		poorIRC_broadcast_message(msg);
+		poorIRC_broadcast_message(msg, srv);
 
 	}
 
@@ -298,8 +298,15 @@ int poorIRC_process_command(struct poorIRC_message *msg)
 	return 0;
 }
 
-int poorIRC_broadcast_message(struct poorIRC_message *msg)
+int poorIRC_broadcast_message(struct poorIRC_message *msg, struct poorIRC_server *srv)
 {
+
+	sem_wait(&(srv->shared_data->buffer_mutex));
+
+	srv->shared_data->buffer.len = msg->len;
+	strncpy(srv->shared_data->buffer.body, msg->body, POORIRC_MSG_MAX_LEN - 1);
+
+	sem_post(&(srv->shared_data->buffer_mutex));
 
 	return 0;
 }
