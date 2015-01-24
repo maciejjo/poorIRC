@@ -18,7 +18,9 @@ int get_tcp_socket(const char *port, char *hostname, char flags)
 	int yes = 1;
 
 
+#ifdef __linux__
 	char addr_str[INET6_ADDRSTRLEN];
+#endif
 
 	struct addrinfo hints;
 	struct addrinfo *address_list;
