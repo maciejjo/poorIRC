@@ -15,7 +15,11 @@ int get_tcp_socket(const char *port, char *hostname, char flags)
 
 	int fd  = 0;
 	int rv  = 0;
+#ifdef __linux__
 	int yes = 1;
+#elif _WIN32
+    char yes = 1;
+#endif
 
 
 #ifdef __linux__
@@ -52,9 +56,14 @@ int get_tcp_socket(const char *port, char *hostname, char flags)
 
 
 	if((rv = getaddrinfo(hostname, port, &hints, &address_list)) != 0) {
-
+#ifdef __linux__
 		fprintf(stderr, "Error: getaddrinfo failed with status: %s\n",
 				gai_strerror(rv));
+
+#elif _WIN32
+        fprintf(stderr, "Error: getaddrinfo failed.\n");
+
+#endif
 		return -1;
 
 	}
@@ -77,7 +86,7 @@ int get_tcp_socket(const char *port, char *hostname, char flags)
 
 		}
 
-		if((flags & SOCKET_REUS) && setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &yes,
+        if((flags & SOCKET_REUS) && setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &yes,
 						sizeof(int)) != 0) {
 
 			fprintf(stderr, "Error: setsockopt() failed with status: "
@@ -126,7 +135,7 @@ int get_tcp_socket(const char *port, char *hostname, char flags)
 
 			fprintf(stderr, "Error: fcntl() failed with status: "
 					"%s\n", strerror(errno));
-			close(fd);
+            closesocket(fd);
 			continue;
 
 		}

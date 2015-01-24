@@ -25,7 +25,11 @@ client::client(QWidget *parent) :
 client::~client()
 {
     if(socket != -1)
+#ifdef _WIN32
         closesocket(socket);
+#elif __linux__
+        close(socket);
+#endif
     delete ui;
 }
 
