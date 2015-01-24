@@ -20,6 +20,7 @@ class client : public QMainWindow
 public:
     explicit client(QWidget *parent = 0);
     int socket;
+    char *nick;
     struct poorIRC_message msg;
     struct poorIRC_response res;
     ~client();

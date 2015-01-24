@@ -101,13 +101,13 @@
      <string>Port:</string>
     </property>
    </widget>
-   <widget class="QLabel" name="portLabelInvalid">
+   <widget class="QLabel" name="connectErrorLabel">
     <property name="geometry">
      <rect>
       <x>630</x>
-      <y>330</y>
+      <y>320</y>
       <width>131</width>
-      <height>31</height>
+      <height>21</height>
      </rect>
     </property>
     <property name="text">
