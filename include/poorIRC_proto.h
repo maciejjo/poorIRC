@@ -40,6 +40,8 @@ struct poorIRC_response {
 
 #define POORIRC_STATUS_OK   0x00
 #define POORIRC_STATUS_FAIL 0x01
+#define POORIRC_STATUS_NICK_TAKEN 0x02
+#define POORIRC_STATUS_CMD_NOTFND 0x03
 
 #endif /* POORIRC_PROTO_H */
 

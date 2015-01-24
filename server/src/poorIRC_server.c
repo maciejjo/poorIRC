@@ -163,6 +163,7 @@ int poorIRC_wait_for_client(struct poorIRC_server *srv)
 {
 
 
+	int i;
 	socklen_t sin_size;
 	char address_string[INET6_ADDRSTRLEN];
 
@@ -183,6 +184,30 @@ int poorIRC_wait_for_client(struct poorIRC_server *srv)
 			continue;
 
 		}
+
+		printf("Printing client list...\n");
+
+		sem_wait(&(srv->shared_lookup->lookup_mutex));
+
+		printf("Critical section begin\n");
+
+		for(i = 0; i < srv->shared_lookup->clients_no; i++) {
+
+			printf("%d. Client list loop.\n", i);
+
+			if(srv->shared_lookup->lookup_table[i].active) {
+				printf("%d. Nickname: %s, PID: %d\n", i,
+					srv->shared_lookup->lookup_table[i].nickname,
+					srv->shared_lookup->lookup_table[i].pid
+				      );
+			}
+
+		}
+
+		printf("Critical section end\n");
+
+		sem_post(&(srv->shared_lookup->lookup_mutex));
+
 
 		inet_ntop(srv->client_addr.ss_family, 
 			get_in_addr((struct sockaddr *) &(srv->client_addr)), 
@@ -214,7 +239,6 @@ int poorIRC_serve(struct poorIRC_server *srv)
 	int num;
 	pid_t mypid;
 
-	int i;
 
 	mypid = getpid();
 
@@ -263,6 +287,8 @@ int poorIRC_serve(struct poorIRC_server *srv)
 
 		}
 
+		poorIRC_process_message(&msg, srv);
+
 		printf("(CHLD %d) Sending OK status to client.\n", mypid);
 
 		res.status = POORIRC_STATUS_OK;
@@ -274,30 +300,6 @@ int poorIRC_serve(struct poorIRC_server *srv)
 
 		}
 
-		poorIRC_process_message(&msg, srv);
-
-		printf("Printing client list...\n");
-
-		sem_wait(&(srv->shared_lookup->lookup_mutex));
-
-		printf("Critical section begin\n");
-
-		for(i = 0; i < srv->shared_lookup->clients_no; i++) {
-
-			printf("%d. Client list loop.\n", i);
-
-			if(srv->shared_lookup->lookup_table[i].active) {
-				printf("%d. Nickname: %s, PID: %d\n", i,
-					srv->shared_lookup->lookup_table[i].nickname,
-					srv->shared_lookup->lookup_table[i].pid
-				      );
-			}
-
-		}
-
-		printf("Critical section end\n");
-
-		sem_post(&(srv->shared_lookup->lookup_mutex));
 
 		printf("(CHLD %d) End of loop.\n", mypid);
 	}
@@ -337,23 +339,40 @@ int poorIRC_process_message(struct poorIRC_message *msg, struct poorIRC_server *
 int poorIRC_process_command(struct poorIRC_message *msg, struct poorIRC_server *srv)
 {
 
-	char *p;
+	char *nick;
 
 	if(strncmp(msg->body, "/nick", strlen("/nick")) == 0) {
 
 		printf("Received nick command\n");
 
-		p = &(msg->body[strlen("/nick ")]);
+		nick = &(msg->body[strlen("/nick ")]);
+
+		if(poorIRC_is_nickname_taken(nick, srv)) {
+
+			printf("Nickname taken\n");
+
+		}
+
 		
-		poorIRC_register_client(p, srv);
+		poorIRC_register_client(nick, srv);
+
+		return 0;
+
+	} else {
+
+		printf("Command not recognized!\n");
+
+		return -1;
 
 	}
 
 	return 0;
+
 }
 
 int poorIRC_broadcast_message(struct poorIRC_message *msg, struct poorIRC_server *srv)
 {
+
 	printf("Broadcasting message\n");
 
 	sem_wait(&(srv->shared_buf->buffer_mutex));
@@ -364,6 +383,7 @@ int poorIRC_broadcast_message(struct poorIRC_message *msg, struct poorIRC_server
 	sem_post(&(srv->shared_buf->buffer_mutex));
 
 	return 0;
+
 }
 
 int poorIRC_register_client(char *nickname, struct poorIRC_server *srv)
@@ -372,8 +392,6 @@ int poorIRC_register_client(char *nickname, struct poorIRC_server *srv)
 	printf("Registering new client...\n");
 
 	sem_wait(&(srv->shared_lookup->lookup_mutex));
-
-	printf("Critical section begin\n");
 
 	if(srv->shared_lookup->clients_no > POORIRC_MAX_CLIENTS) {
 
@@ -389,10 +407,16 @@ int poorIRC_register_client(char *nickname, struct poorIRC_server *srv)
 
 	srv->shared_lookup->clients_no++;
 
-	printf("Critical section end\n");
-
 	sem_post(&(srv->shared_lookup->lookup_mutex));
 
 	return 0;
+
+}
+
+int poorIRC_is_nickname_taken(char *nickname, struct poorIRC_server *srv)
+{
+	int i = 0;
+
+	return i;
 
 }

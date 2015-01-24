@@ -105,6 +105,7 @@ int poorIRC_process_message(struct poorIRC_message *msg, struct poorIRC_server *
 int poorIRC_process_command(struct poorIRC_message *msg, struct poorIRC_server *srv);
 int poorIRC_broadcast_message(struct poorIRC_message *msg, struct poorIRC_server *srv);
 int poorIRC_register_client(char *nickname, struct poorIRC_server *srv);
+int poorIRC_is_nickname_taken(char *nickname, struct poorIRC_server *srv);
 
 
 #endif /* _POORIRC_H */
