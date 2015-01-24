@@ -24,6 +24,10 @@
 
 void *get_in_addr(struct sockaddr *sa);
 int get_tcp_socket(const char *port, char *hostname, char flags);
+
+
+#ifdef __linux__
 void modify_tcp_socket(int fd, char flags);
+#endif /* __linux */
 
 #endif
