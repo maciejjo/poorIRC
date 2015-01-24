@@ -214,6 +214,7 @@ int poorIRC_serve(struct poorIRC_server *srv)
 
 			fprintf(stderr, "Error: recv() failed with status "
 					"%s\n", strerror(errno));
+			break;
 
 		}
 
