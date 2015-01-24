@@ -110,7 +110,7 @@ int get_tcp_socket(const char *port, char *hostname, char flags)
 
 		}
 
-#ifdef __linux__ 
+#ifdef __linux__
 		if((flags & SOCKET_NOBL) && fcntl(fd, F_SETFL, O_NONBLOCK) == -1) {
 
 			fprintf(stderr, "Error: fcntl() failed with status: "
@@ -148,3 +148,33 @@ int get_tcp_socket(const char *port, char *hostname, char flags)
 
 }
 
+void modify_tcp_socket(int fd, char flags)
+{
+	int yes = 1;
+
+	if((flags & SOCKET_REUS) && setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &yes,
+					sizeof(int)) != 0) {
+
+		fprintf(stderr, "Error: setsockopt() failed with status: "
+				"%s\n", strerror(errno));
+
+	}
+
+#ifdef __linux__
+		if((flags & SOCKET_NOBL) && fcntl(fd, F_SETFL, O_NONBLOCK) == -1) {
+
+			fprintf(stderr, "Error: fcntl() failed with status: "
+					"%s\n", strerror(errno));
+
+		}
+#elif _WIN32
+		if((flags & SOCKET_NOBL) && ioctlsocket(fd, FIONBIO, &mode) != 0) {
+
+			fprintf(stderr, "Error: fcntl() failed with status: "
+					"%s\n", strerror(errno));
+
+		}
+
+#endif
+
+}
