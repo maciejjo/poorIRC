@@ -129,54 +129,70 @@ User* findUserByPID(User **root, pid_t userPID)
 }
 int deleteUser(User **rootd,pid_t userPID)
 {
-	User *element,*toDelete,*temp;
-	element=*rootd;
+	User *element, *toDelete, *temp;
 
-	while(element!=NULL)
-	{
-		if(userPID==(element->userPID))
-		{
+	element = *rootd;
+
+	while(element != NULL) {
+
+		if(userPID == (element->userPID)) {
+
 			break;
-		}
-		else if(userPID<(element->userPID))
-		{
-			element=element->left;
-		}
-		else
-		{
-			element=element->right;
+
+		} else if(userPID<(element->userPID)) {
+
+			element = element->left;
+
+		} else {
+
+			element = element->right;
+
 		}
 	}
 
-	if(element==NULL) return 0;
-	{
+	if(element == NULL) {
+
+		return 0;
+
 	}
-	else
-	{
+
+	if((element->left == NULL) || (element->right == NULL)) {
+
+		toDelete=element;
+
+	} else {
+
+		toDelete=findNextInOrder(element);
+
+	}
+
+	if(toDelete->left != NULL) {
+
 		temp=toDelete->left;
-	}
-	else
-	{
+
+	} else {
+
 		temp=toDelete->right;
-	}
-	if(toDelete->parent==NULL)
-	{
 
 	}
-	{
-		(toDelete->parent)->left=temp;
+
+	if(temp != NULL) {
+
+		temp->parent=toDelete->parent;
 
 	}
-	else
-	{
 
-	}
-	if(toDelete!=element)
-	{
+	if(toDelete->parent==NULL) {
+
+		(toDelete->parent)->left = temp;
+
+	} else if(toDelete!=element) {
+
 		element->userPID = toDelete->userPID;
 		strcpy(element->nickname,toDelete->nickname);
 
 	}
+
 	free(toDelete);
 	return 1;
 }
