@@ -27,6 +27,7 @@
 void *get_in_addr(struct sockaddr *sa);
 int get_tcp_socket(const char *port, char *hostname, char flags);
 int poor_send(const int socket, const char *message);
+int poor_recv(const int socket, struct poorIRC_message_srv *rsp );
 
 #ifdef __linux__
 void modify_tcp_socket(int fd, char flags);

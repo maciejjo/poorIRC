@@ -182,6 +182,22 @@ int poor_send(const int socket, const char *message){
     return 0;
 }
 
+int poor_recv(const int socket, struct poorIRC_message_srv *rsp ){
+
+
+    if(-1 == (recv(socket, (char *)&(rsp->len), sizeof(rsp->len), 0))) {
+        return -1;
+    }
+    printf("received lenght: %d\n",rsp->len);
+    if(-1 == (recv(socket, (char *)&rsp->body, rsp->len, 0))) {
+        return -1;
+    }
+    printf("received string: %s\n", rsp->body );
+
+    return 0;
+
+}
+
 
 #ifdef __linux__
 void modify_tcp_socket(int fd, char flags)
