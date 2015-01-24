@@ -44,22 +44,26 @@ struct poorIRC_config {
 struct poorIRC_server_shared_buffer {
 
 	/* Shared between forked processes */
-	struct poorIRC_message_srv buffer;
 	sem_t buffer_mutex;
 
 };
 
-struct poorIRC_server_lookup_entry {
+struct poorIRC_server_client_entry {
 
 	pid_t pid;
-	char nickname[POORIRC_NICKNAME_MAX_LEN];
 	int active;
+	char nickname[POORIRC_NICKNAME_MAX_LEN];
+
+	struct poorIRC_message_srv buffer;
+	int dirty;
+
+
 
 };
 
 struct poorIRC_server_client_lookup_table {
 
-	struct poorIRC_server_lookup_entry lookup_table[POORIRC_MAX_CLIENTS];
+	struct poorIRC_server_client_entry lookup_table[POORIRC_MAX_CLIENTS];
 	int clients_no;
 	sem_t lookup_mutex;
 
