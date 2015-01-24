@@ -162,7 +162,6 @@ int get_tcp_socket(const char *port, char *hostname, char flags)
 int poor_send(const int socket, const char *message){
 
     struct poorIRC_message msg;
-    struct poorIRC_response res;
 
     msg.len = strlen(message) + 1;
     if(0 == msg.len -1)
@@ -180,16 +179,6 @@ int poor_send(const int socket, const char *message){
     if(-1 == (send(socket, (char *)&(msg.body), msg.len, 0))) {
         return -1; /* error with sending actual message */
     }
-
-    if(-1 == (recv(socket, (char *)&res, sizeof(res), 0))) {
-        return -1;
-    }
-
-    if(res.status == POORIRC_STATUS_OK) {
-                printf("Status OK received\n");
-
-    }
-
     return 0;
 }
 

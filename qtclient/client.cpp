@@ -60,6 +60,10 @@ void client::on_connectButton_clicked()
         return;
     }
 
+    QSocketNotifier *SocketMonitor;
+    SocketMonitor = new QSocketNotifier(socket, QSocketNotifier::Read, parent());
+    connect(SocketMonitor,SIGNAL(activated(int)),this ,SLOT(dataReceived()) );
+
     char *set_nick = (char *)calloc(7+POORIRC_MSG_MAX_LEN, sizeof(char));
     strcat(set_nick, "/nick ");
     strcat(set_nick, nick);
@@ -84,10 +88,6 @@ void client::on_connectButton_clicked()
 
     printf("Socket obtained!: %d\n", socket);
 
-    //QSocketNotifier *SocketMonitor;
-    //SocketMonitor = new QSocketNotifier(socket, QSocketNotifier::Read, parent);
-    //QObject::connect(SocketMonitor,SIGNAL(activated(int)), client ,SLOT(dataReceived()) );
-
 }
 
 void client::on_sendButton_clicked()
@@ -98,5 +98,14 @@ void client::on_sendButton_clicked()
     if(0 == poor_send(socket, message))
         ui->sendMessage->clear();
 
+}
+
+void client::dataReceived(){
+   struct poorIRC_response res;
+
+   if(-1 == (recv(socket, (char *)&res, sizeof(res), 0))) {
+       return;
+   }
+   ui->serverMessages->append("");
 
 }

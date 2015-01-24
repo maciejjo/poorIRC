@@ -2,6 +2,7 @@
 #define CLIENT_H
 
 #include <QMainWindow>
+#include <qsocketnotifier.h>
 
 extern "C" {
 #include "../include/sock_help.h"
@@ -29,6 +30,8 @@ private slots:
     void on_connectButton_clicked();
 
     void on_sendButton_clicked();
+
+    void dataReceived();
 
 private:
     Ui::client *ui;
