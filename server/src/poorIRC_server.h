@@ -65,11 +65,9 @@ struct poorIRC_server_client_lookup_table {
 
 	struct poorIRC_server_client_entry lookup_table[POORIRC_MAX_CLIENTS];
 	int clients_no;
-	sem_t lookup_mutex;
+	sem_t mutex;
 
 };
-
-	
 
 /*
  * struct poorIRC_server
@@ -90,9 +88,13 @@ struct poorIRC_server {
 	/* Internet Address of current client */
 	struct sockaddr_storage client_addr;
 
+	/*
 	struct poorIRC_server_shared_buffer *shared_buf;
+	*/
 
 	struct poorIRC_server_client_lookup_table *shared_lookup;
+	int my_lookup_id;
+
 
 };
 

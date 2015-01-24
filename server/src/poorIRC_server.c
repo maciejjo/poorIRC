@@ -101,6 +101,7 @@ int poorIRC_init(struct poorIRC_config *cfg, struct poorIRC_server **srv)
 
 	}
 
+	/*
 	if(((*srv)->shared_buf = mmap(NULL, sizeof(struct poorIRC_server_shared_buffer),
 					PROT_READ | PROT_WRITE, MAP_ANON |
 					MAP_SHARED, -1, 0)) == MAP_FAILED) {
@@ -118,6 +119,7 @@ int poorIRC_init(struct poorIRC_config *cfg, struct poorIRC_server **srv)
 		return 1;
 
 	}
+	*/
 
 
 	if(((*srv)->shared_lookup = mmap(NULL, sizeof(struct poorIRC_server_client_lookup_table),
@@ -130,7 +132,7 @@ int poorIRC_init(struct poorIRC_config *cfg, struct poorIRC_server **srv)
 
 	}
 
-	if(sem_init(&((*srv)->shared_lookup->lookup_mutex), 1, 1) == -1) {
+	if(sem_init(&((*srv)->shared_lookup->mutex), 1, 1) == -1) {
 
 		fprintf(stderr, "Error: sem_init() failed with status: %s\n",
 				strerror(errno));
@@ -193,7 +195,7 @@ int poorIRC_wait_for_client(struct poorIRC_server *srv)
 		/*
 		printf("Printing client list...\n");
 
-		sem_wait(&(srv->shared_lookup->lookup_mutex));
+		sem_wait(&(srv->shared_lookup->mutex));
 
 		printf("Critical section begin\n");
 
@@ -212,7 +214,7 @@ int poorIRC_wait_for_client(struct poorIRC_server *srv)
 
 		printf("Critical section end\n");
 
-		sem_post(&(srv->shared_lookup->lookup_mutex));
+		sem_post(&(srv->shared_lookup->mutex));
 		*/
 
 
@@ -324,6 +326,34 @@ int poorIRC_serve(struct poorIRC_server *srv)
 
 		}
 
+		sem_wait(&(srv->shared_lookup->mutex));
+
+		if(srv->shared_lookup->lookup_table[srv->my_lookup_id].dirty) {
+
+			if(send(srv->client_fd, 
+			        &(srv->shared_lookup->lookup_table[srv->my_lookup_id].buffer.len), 
+			        sizeof(srv->shared_lookup->lookup_table[srv->my_lookup_id].buffer.len), 0) == -1) {
+
+				fprintf(stderr, "Error: send() failed with status: "
+						"%s\n", strerror(errno));
+
+			}
+
+			if(send(srv->client_fd, 
+			        &(srv->shared_lookup->lookup_table[srv->my_lookup_id].buffer.body), 
+			        srv->shared_lookup->lookup_table[srv->my_lookup_id].buffer.len, 0) == -1) {
+
+				fprintf(stderr, "Error: send() failed with status: "
+						"%s\n", strerror(errno));
+
+			}
+
+			srv->shared_lookup->lookup_table[srv->my_lookup_id].dirty = 0;
+
+		}
+
+		sem_post(&(srv->shared_lookup->mutex));
+
 
 		printf("(CHLD %d) End of loop.\n", mypid);
 
@@ -398,16 +428,33 @@ int poorIRC_process_command(struct poorIRC_message *msg, struct poorIRC_server *
 int poorIRC_broadcast_message(struct poorIRC_message *msg, struct poorIRC_server *srv)
 {
 
+	struct poorIRC_message_srv s_msg;
+
+	int i;
+
 	printf("Broadcasting message\n");
 
-	sem_wait(&(srv->shared_buf->buffer_mutex));
+	sem_wait(&(srv->shared_lookup->mutex));
 
-	/*
-	srv->shared_buf->buffer.len = msg->len;
-	strncpy(srv->shared_buf->buffer.body, msg->body, POORIRC_MSG_MAX_LEN - 1);
-	*/
+	strncpy(s_msg.body, srv->shared_lookup->lookup_table[srv->my_lookup_id].nickname, POORIRC_NICKNAME_MAX_LEN);
+	strcat(s_msg.body, ":");
+	strncat(s_msg.body, msg->body, POORIRC_MSG_MAX_LEN);
 
-	sem_post(&(srv->shared_buf->buffer_mutex));
+	for(i = 0; i < POORIRC_MAX_CLIENTS; i++) {
+
+		if(srv->shared_lookup->lookup_table[i].active) {
+
+			strncpy(srv->shared_lookup->lookup_table[i].buffer.body, s_msg.body, POORIRC_MSG_MAX_LEN + POORIRC_NICKNAME_MAX_LEN);
+			srv->shared_lookup->lookup_table[i].buffer.len = strlen(s_msg.body);
+			srv->shared_lookup->lookup_table[i].dirty = 1;
+
+		}
+
+	}
+
+
+
+	sem_post(&(srv->shared_lookup->mutex));
 
 	return 0;
 
@@ -418,11 +465,11 @@ int poorIRC_register_client(char *nickname, struct poorIRC_server *srv)
 
 	printf("Registering new client...\n");
 
-	sem_wait(&(srv->shared_lookup->lookup_mutex));
+	sem_wait(&(srv->shared_lookup->mutex));
 
 	if(srv->shared_lookup->clients_no > POORIRC_MAX_CLIENTS) {
 
-		sem_post(&(srv->shared_lookup->lookup_mutex));
+		sem_post(&(srv->shared_lookup->mutex));
 		fprintf(stderr, "Cannot connect to server, too many clients!\n");
 		return -1;
 
@@ -432,9 +479,11 @@ int poorIRC_register_client(char *nickname, struct poorIRC_server *srv)
 	strncpy(srv->shared_lookup->lookup_table[srv->shared_lookup->clients_no].nickname, nickname, POORIRC_NICKNAME_MAX_LEN);
 	srv->shared_lookup->lookup_table[srv->shared_lookup->clients_no].active = 1;
 
+	srv->my_lookup_id = srv->shared_lookup->clients_no;
+
 	srv->shared_lookup->clients_no++;
 
-	sem_post(&(srv->shared_lookup->lookup_mutex));
+	sem_post(&(srv->shared_lookup->mutex));
 
 	return 0;
 
