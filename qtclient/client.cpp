@@ -7,6 +7,9 @@ client::client(QWidget *parent) :
     socket = -1;
     ui->setupUi(this);
     ui->portNumber->setValidator(new QIntValidator(1024,65535,this));
+
+    ui->nickEdit->setMaxLength(POORIRC_NICKNAME_MAX_LEN);
+
     //IPv4 validation
     QString ipRange = "(?:[0-1]?[0-9]?[0-9]|2[0-4][0-9]|25[0-5])";
     QRegExp ipRegex ("^" + ipRange
