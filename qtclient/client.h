@@ -2,6 +2,7 @@
 #define CLIENT_H
 
 #include <QMainWindow>
+#include <qsocketnotifier.h>
 
 extern "C" {
 #include "../include/sock_help.h"
