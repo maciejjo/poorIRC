@@ -17,6 +17,8 @@
 #include <string.h>
 #include <errno.h>
 
+#include "poorIRC_proto.h"
+
 #define SOCKET_BIND 0x01
 #define SOCKET_CONN 0x02
 #define SOCKET_REUS 0x04
@@ -24,7 +26,7 @@
 
 void *get_in_addr(struct sockaddr *sa);
 int get_tcp_socket(const char *port, char *hostname, char flags);
-
+int poor_send(const int socket, const char *message);
 
 #ifdef __linux__
 void modify_tcp_socket(int fd, char flags);
