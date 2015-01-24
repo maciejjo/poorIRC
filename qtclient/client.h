@@ -3,6 +3,10 @@
 
 #include <QMainWindow>
 
+extern "C" {
+#include "../include/sock_help.h"
+#include "../include/poorIRC_proto.h"
+}
 
 
 namespace Ui {
@@ -16,6 +20,8 @@ class client : public QMainWindow
 public:
     explicit client(QWidget *parent = 0);
     int socket;
+    struct poorIRC_message msg;
+    struct poorIRC_response res;
     ~client();
 
 private slots:
