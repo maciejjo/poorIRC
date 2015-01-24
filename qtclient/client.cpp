@@ -1,13 +1,10 @@
 #include "client.h"
 #include "ui_client.h"
-extern "C" {
-#include "../include/sock_help.h"
-#include "../include/poorIRC_proto.h"
-}
 client::client(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::client)
 {
+    socket = -1;
     ui->setupUi(this);
     ui->portNumber->setValidator(new QIntValidator(1024,65535,this));
     //IPv4 validation
@@ -24,6 +21,8 @@ client::client(QWidget *parent) :
 
 client::~client()
 {
+    if(socket != -1)
+        closesocket(socket);
     delete ui;
 }
 
@@ -58,11 +57,10 @@ void client::on_connectButton_clicked()
 }
 
 void client::on_sendButton_clicked()
-{
-    struct poorIRC_message msg;
-    struct poorIRC_response res;
+{  
+
     msg.len = ui->sendMessage->text().length() + 1;
-    if(0 == msg.len)
+    if(0 == msg.len-1)
         return; // you have to actually send something
     else if (127 <= msg.len){
         return; // too much
