@@ -17,6 +17,7 @@ client::client(QWidget *parent) :
                      + "\\." + ipRange
                      + "\\." + ipRange + "$");
     QRegExpValidator *ipValidator = new QRegExpValidator(ipRegex, this);
+
     ui->ipEdit->setValidator(ipValidator);
 }
 
@@ -39,12 +40,16 @@ void client::on_connectButton_clicked()
         ui->ipEdit->setEnabled(false);
     }
     else
-        ui->portLabelInvalid->setText("INVALID PORT!");
+        ui->portLabelInvalid->setText("Invalid data!");
 
     char flag = SOCKET_CONN;
+
     //just to be readible
     char *host = ui->ipEdit->text().toLocal8Bit().data();
     char *port = ui->portNumber->text().toLocal8Bit().data();
+
+
+
     if(-1 == (socket = get_tcp_socket(port, host, flag)))
         return;
 
