@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include ../../common/poorIRC_proto.h
+#include "../../include/poorIRC_proto.h"
 
 typedef struct User{
 	pid_t userPID;
@@ -18,7 +18,7 @@ typedef struct User{
 User *newUser(pid_t userPID, char nick[]);
 void addUser(User **root,pid_t userPID, char nickname[]);
 int deleteUser(User **rootd,pid_t userPID);
-User* findUserByPID(User **root, pid_t userPID)
+User *findUserByPID(User **root, pid_t userPID);
 
 void showInOrder(User *root);
 void showPreOrder(User *root);

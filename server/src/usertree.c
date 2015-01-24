@@ -14,7 +14,6 @@ User *newUser(pid_t userPID, char nick[])
 
 	return newElement;
 }
-//-------------------------------------------------------------------------------
 
 void addUser(User **root,pid_t userPID, char nickname[])
 {
@@ -50,7 +49,6 @@ void addUser(User **root,pid_t userPID, char nickname[])
 		parent->right=newElement;
 	}
 }
-//-------------------------------------------------------------------------------
 void showInOrder(User *root)
 {
 	User *current;
@@ -62,7 +60,6 @@ void showInOrder(User *root)
 		showInOrder(current->right);
 	}
 }
-//-------------------------------------------------------------------------------
 void showPreOrder(User *root)
 {
 	User *current;
@@ -74,7 +71,6 @@ void showPreOrder(User *root)
 		showPreOrder(current->right);
 	}
 }
-//-------------------------------------------------------------------------------
 void showPostOrder(User *root)
 {
 	User *current;
@@ -83,10 +79,9 @@ void showPostOrder(User *root)
 	{
 		showPostOrder(current->left);
 		showPostOrder(current->right);
-		printf("%d %d %s\n",current->userPID,current->nickname);
+		printf("%d %s\n", current->userPID, current->nickname);
 	}
 }
-//-------------------------------------------------------------------------------
 User* minimumFrom(User *leaf)
 {
 	while(leaf->left!=NULL)
@@ -95,7 +90,6 @@ User* minimumFrom(User *leaf)
 	}
 	return leaf;
 }
-//-------------------------------------------------------------------------------
 User* findNextInOrder(User *leaf)
 {
 	User *current;
@@ -112,7 +106,6 @@ User* findNextInOrder(User *leaf)
 	}
 	return current;
 }
-//-------------------------------------------------------------------------------
 User* findUserByPID(User **root, pid_t userPID)
 {
 
@@ -134,13 +127,11 @@ User* findUserByPID(User **root, pid_t userPID)
 
 	return current;
 }
-//-------------------------------------------------------------------------------
 int deleteUser(User **rootd,pid_t userPID)
 {
 	User *element,*toDelete,*temp;
 	element=*rootd;
 
-	//szuka w drzewie wezla do usuniecia
 	while(element!=NULL)
 	{
 		if(userPID==(element->userPID))
@@ -158,16 +149,9 @@ int deleteUser(User **rootd,pid_t userPID)
 	}
 
 	if(element==NULL) return 0;
-	if((element->left==NULL)||(element->right==NULL)) //sprawdza czy ma synow
 	{
-		toDelete=element;           //jak jeden lub wcale
 	}
 	else
-	{
-		toDelete=findNextInOrder(element); //jak ma dwoch to szuka takiego, ktory go zastapi usuwany element
-	}                                      //czyli NAJMNIEJSZEGO Z PRAWEGO PODRZEWA
-	//----
-	if(toDelete->left!=NULL)    //zapamietuje lewy lub prawy nastepnik
 	{
 		temp=toDelete->left;
 	}
@@ -175,25 +159,18 @@ int deleteUser(User **rootd,pid_t userPID)
 	{
 		temp=toDelete->right;
 	}
-	//----
-	if(temp!=NULL) temp->parent=toDelete->parent; //ustawia poprzednika w lewym lub prawym (poszukanym wyzej)
-	//----
 	if(toDelete->parent==NULL)
 	{
-		(*rootd)=temp;      //usuwanie korzenia
 
 	}
-	else if(toDelete==(toDelete->parent)->left)     //z jednym dzieckiem #1 - lewy
 	{
 		(toDelete->parent)->left=temp;
 
 	}
 	else
 	{
-		(toDelete->parent)->right=temp;          //z jednym dzieckiem #2 - prawy
 
 	}
-	//----
 	if(toDelete!=element)
 	{
 		element->userPID = toDelete->userPID;
