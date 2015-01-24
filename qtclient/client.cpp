@@ -17,6 +17,7 @@ client::client(QWidget *parent) :
                      + "\\." + ipRange
                      + "\\." + ipRange + "$");
     QRegExpValidator *ipValidator = new QRegExpValidator(ipRegex, this);
+
     ui->ipEdit->setValidator(ipValidator);
 }
 
@@ -39,12 +40,16 @@ void client::on_connectButton_clicked()
         ui->ipEdit->setEnabled(false);
     }
     else
-        ui->portLabelInvalid->setText("INVALID PORT!");
+        ui->portLabelInvalid->setText("Invalid data!");
 
     char flag = SOCKET_CONN;
+
     //just to be readible
     char *host = ui->ipEdit->text().toLocal8Bit().data();
     char *port = ui->portNumber->text().toLocal8Bit().data();
+
+
+
     if(-1 == (socket = get_tcp_socket(port, host, flag)))
         return;
 
@@ -55,6 +60,7 @@ void client::on_connectButton_clicked()
 void client::on_sendButton_clicked()
 {
     struct poorIRC_message msg;
+    struct poorIRC_response res;
     msg.len = ui->sendMessage->text().length();
     if(0 == msg.len)
         return; // you have to actually send something
@@ -70,6 +76,16 @@ void client::on_sendButton_clicked()
     if(-1 == (send(socket, (char *)&(msg.body), msg.len, 0))) {
         return; //error with sending actual message
     }
+
+    if(-1 == (recv(socket, (char *)&res, sizeof(res), 0))) {
+        return;
+    }
+
+    if(res.status == POORIRC_STATUS_OK) {
+                printf("Status OK received\n");
+
+    }
+
     ui->sendMessage->clear();
 
 }
