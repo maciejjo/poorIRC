@@ -42,7 +42,7 @@ struct poorIRC_config {
 struct poorIRC_server_shared {
 
 	/* Shared between forked processes */
-	struct poorIRC_message buffer;
+	struct poorIRC_message_srv buffer;
 	sem_t buffer_mutex;
 
 };

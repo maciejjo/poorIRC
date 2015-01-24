@@ -1,7 +1,7 @@
 #ifndef POORIRC_PROTO_H
 #define POORIRC_PROTO_H
 
-#define POORIRC_MSG_MAX_LEN   128
+#define POORIRC_MSG_MAX_LEN      128
 #define POORIRC_NICKNAME_MAX_LEN 16
 
 /*
@@ -15,6 +15,13 @@ struct poorIRC_message {
 	char          body[POORIRC_MSG_MAX_LEN];
 
 };
+
+struct poorIRC_message_srv {
+
+	unsigned char len;
+	char          body[POORIRC_MSG_MAX_LEN + POORIRC_NICKNAME_MAX_LEN];
+
+}
 
 /*
  * struct poorIRC_response
