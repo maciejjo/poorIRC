@@ -36,10 +36,13 @@ client::~client()
 
 void client::on_connectButton_clicked()
 {
+    //Validate nick
     if(ui->nickEdit->text().length() == 0){
         ui->connectErrorLabel->setText("Set nick!");
         return;
     }
+
+    //Validate port and host
     if(ui->portNumber->hasAcceptableInput()
             && ui->ipEdit->hasAcceptableInput()){
         ui->connectErrorLabel->setText("");
@@ -56,7 +59,6 @@ void client::on_connectButton_clicked()
         ui->connectErrorLabel->setText("Invalid port!");
         return;
     }
-    char flag = SOCKET_CONN;
 
     //just to be readible
     char *host = ui->ipEdit->text().toLocal8Bit().data();
@@ -65,7 +67,7 @@ void client::on_connectButton_clicked()
     nick = ui->nickEdit->text().toLocal8Bit().data();
     strcat(nick, "\0");
 
-    if(-1 == (socket = get_tcp_socket(port, host, flag)))
+    if(-1 == (socket = get_tcp_socket(port, host, SOCKET_CONN)))
         return;
 
     char *set_nick = (char *)calloc(7+POORIRC_MSG_MAX_LEN, sizeof(char));
@@ -73,6 +75,7 @@ void client::on_connectButton_clicked()
     strcat(set_nick, nick);
 
     poor_send(socket, set_nick);
+    free(set_nick);
 
     printf("Socket obtained!: %d\n", socket);
 }
@@ -84,5 +87,6 @@ void client::on_sendButton_clicked()
 
     if(0 == poor_send(socket, message))
         ui->sendMessage->clear();
+
 
 }
