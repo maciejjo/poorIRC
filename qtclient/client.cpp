@@ -43,8 +43,32 @@ void client::on_connectButton_clicked()
     }
 
     //Validate port and host
-    if(ui->portNumber->hasAcceptableInput()
-            && ui->ipEdit->hasAcceptableInput()){
+    if(!ui->portNumber->hasAcceptableInput()
+            && !ui->ipEdit->hasAcceptableInput()){
+        ui->connectErrorLabel->setText("Invalid port!");
+        return;
+    }
+    //just to be readible
+    char *host = ui->ipEdit->text().toLocal8Bit().data();
+    char *port = ui->portNumber->text().toLocal8Bit().data();
+
+    nick = ui->nickEdit->text().toLocal8Bit().data();
+    strcat(nick, "\0");
+
+    if(-1 == (socket = get_tcp_socket(port, host, SOCKET_CONN))){
+        ui->connectErrorLabel->setText("Wrong IP");
+        return;
+    }
+
+    char *set_nick = (char *)calloc(7+POORIRC_MSG_MAX_LEN, sizeof(char));
+    strcat(set_nick, "/nick ");
+    strcat(set_nick, nick);
+
+    if(-1 == poor_send(socket, set_nick)){
+        free(set_nick);
+        return;
+    }
+    else {
         ui->connectErrorLabel->setText("");
         ui->sendButton->setEnabled(true);
         ui->sendMessage->setEnabled(true);
@@ -54,30 +78,16 @@ void client::on_connectButton_clicked()
         ui->connectButton->setEnabled(false);
         ui->portNumber->setEnabled(false);
         ui->ipEdit->setEnabled(false);
+
     }
-    else{
-        ui->connectErrorLabel->setText("Invalid port!");
-        return;
-    }
-
-    //just to be readible
-    char *host = ui->ipEdit->text().toLocal8Bit().data();
-    char *port = ui->portNumber->text().toLocal8Bit().data();
-
-    nick = ui->nickEdit->text().toLocal8Bit().data();
-    strcat(nick, "\0");
-
-    if(-1 == (socket = get_tcp_socket(port, host, SOCKET_CONN)))
-        return;
-
-    char *set_nick = (char *)calloc(7+POORIRC_MSG_MAX_LEN, sizeof(char));
-    strcat(set_nick, "/nick ");
-    strcat(set_nick, nick);
-
-    poor_send(socket, set_nick);
     free(set_nick);
 
     printf("Socket obtained!: %d\n", socket);
+
+    //QSocketNotifier *SocketMonitor;
+    //SocketMonitor = new QSocketNotifier(socket, QSocketNotifier::Read, parent);
+    //QObject::connect(SocketMonitor,SIGNAL(activated(int)), client ,SLOT(dataReceived()) );
+
 }
 
 void client::on_sendButton_clicked()
