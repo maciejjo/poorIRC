@@ -61,7 +61,7 @@ void client::on_sendButton_clicked()
 {
     struct poorIRC_message msg;
     struct poorIRC_response res;
-    msg.len = ui->sendMessage->text().length();
+    msg.len = ui->sendMessage->text().length() + 1;
     if(0 == msg.len)
         return; // you have to actually send something
     else if (127 <= msg.len){
@@ -73,6 +73,7 @@ void client::on_sendButton_clicked()
         }
         strncpy(msg.body,ui->sendMessage->text().toLocal8Bit().data(), msg.len);
     }
+
     if(-1 == (send(socket, (char *)&(msg.body), msg.len, 0))) {
         return; //error with sending actual message
     }
