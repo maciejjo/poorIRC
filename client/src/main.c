@@ -47,7 +47,6 @@ int main(int argc, char **argv)
 		if (msg.body[ln] == '\n')
 			msg.body[ln] = '\0';
 
-		strtok(msg.body, "\n");
 		msg.len = strlen(msg.body) + 1;
 
 		printf("Trying to send message...\n");
