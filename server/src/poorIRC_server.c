@@ -93,7 +93,6 @@ int poorIRC_init(struct poorIRC_config *cfg, struct poorIRC_server **srv)
 
 	printf("Initializing server...\n");
 	
-
 	if((*srv = calloc(1, sizeof(struct poorIRC_server))) == NULL) {
 
 		fprintf(stderr, "Error: calloc() failed with status: %s\n",
@@ -102,7 +101,7 @@ int poorIRC_init(struct poorIRC_config *cfg, struct poorIRC_server **srv)
 
 	}
 
-	if(((*srv)->shared_data = mmap(NULL, sizeof(struct poorIRC_server_shared),
+	if(((*srv)->shared_buf = mmap(NULL, sizeof(struct poorIRC_server_shared_buffer),
 					PROT_READ | PROT_WRITE, MAP_ANON |
 					MAP_SHARED, -1, 0)) == MAP_FAILED) {
 
@@ -112,7 +111,25 @@ int poorIRC_init(struct poorIRC_config *cfg, struct poorIRC_server **srv)
 
 	}
 
-	if(sem_init(&((*srv)->shared_data->buffer_mutex), 1, 1) == -1) {
+	if(((*srv)->shared_lookup = mmap(NULL, sizeof(struct poorIRC_server_client_lookup_table),
+					PROT_READ | PROT_WRITE, MAP_ANON |
+					MAP_SHARED, -1, 0)) == MAP_FAILED) {
+
+		fprintf(stderr, "Error: mmap() failed with status: %s\n",
+				strerror(errno));
+		return 1;
+
+	}
+
+	if(sem_init(&((*srv)->shared_buf->buffer_mutex), 1, 1) == -1) {
+
+		fprintf(stderr, "Error: sem_init() failed with status: %s\n",
+				strerror(errno));
+		return 1;
+
+	}
+
+	if(sem_init(&((*srv)->shared_lookup->lookup_mutex), 1, 1) == -1) {
 
 		fprintf(stderr, "Error: sem_init() failed with status: %s\n",
 				strerror(errno));
@@ -197,6 +214,8 @@ int poorIRC_serve(struct poorIRC_server *srv)
 	int num;
 	pid_t mypid;
 
+	int i;
+
 	mypid = getpid();
 
 	res.status = POORIRC_STATUS_OK;
@@ -204,7 +223,6 @@ int poorIRC_serve(struct poorIRC_server *srv)
 	memset(&msg, 0, sizeof(msg));
 
 	printf("(CHLD %d) In serving function, entering server loop.\n", mypid);
-
 
 	while(1) {
 
@@ -258,6 +276,29 @@ int poorIRC_serve(struct poorIRC_server *srv)
 
 		poorIRC_process_message(&msg, srv);
 
+		printf("Printing client list...\n");
+
+		sem_wait(&(srv->shared_lookup->lookup_mutex));
+
+		printf("Critical section begin\n");
+
+		for(i = 0; i < srv->shared_lookup->clients_no; i++) {
+
+			printf("%d. Client list loop.\n", i);
+
+			if(srv->shared_lookup->lookup_table[i].active) {
+				printf("%d. Nickname: %s, PID: %d\n", i,
+					srv->shared_lookup->lookup_table[i].nickname,
+					srv->shared_lookup->lookup_table[i].pid
+				      );
+			}
+
+		}
+
+		printf("Critical section end\n");
+
+		sem_post(&(srv->shared_lookup->lookup_mutex));
+
 		printf("(CHLD %d) End of loop.\n", mypid);
 	}
 
@@ -280,7 +321,7 @@ int poorIRC_process_message(struct poorIRC_message *msg, struct poorIRC_server *
 	} else if(msg->body[0] == '/') {
 
 		printf("This is a command!\n");
-		poorIRC_process_command(msg);
+		poorIRC_process_command(msg, srv);
 
 	} else {
 
@@ -293,8 +334,20 @@ int poorIRC_process_message(struct poorIRC_message *msg, struct poorIRC_server *
 
 }
 
-int poorIRC_process_command(struct poorIRC_message *msg)
+int poorIRC_process_command(struct poorIRC_message *msg, struct poorIRC_server *srv)
 {
+
+	char *p;
+
+	if(strncmp(msg->body, "/nick", strlen("/nick")) == 0) {
+
+		printf("Received nick command\n");
+
+		p = &(msg->body[strlen("/nick ")]);
+		
+		poorIRC_register_client(p, srv);
+
+	}
 
 	return 0;
 }
@@ -303,12 +356,43 @@ int poorIRC_broadcast_message(struct poorIRC_message *msg, struct poorIRC_server
 {
 	printf("Broadcasting message\n");
 
-	sem_wait(&(srv->shared_data->buffer_mutex));
+	sem_wait(&(srv->shared_buf->buffer_mutex));
 
-	srv->shared_data->buffer.len = msg->len;
-	strncpy(srv->shared_data->buffer.body, msg->body, POORIRC_MSG_MAX_LEN - 1);
+	srv->shared_buf->buffer.len = msg->len;
+	strncpy(srv->shared_buf->buffer.body, msg->body, POORIRC_MSG_MAX_LEN - 1);
 
-	sem_post(&(srv->shared_data->buffer_mutex));
+	sem_post(&(srv->shared_buf->buffer_mutex));
 
 	return 0;
+}
+
+int poorIRC_register_client(char *nickname, struct poorIRC_server *srv)
+{
+
+	printf("Registering new client...\n");
+
+	sem_wait(&(srv->shared_lookup->lookup_mutex));
+
+	printf("Critical section begin\n");
+
+	if(srv->shared_lookup->clients_no > POORIRC_MAX_CLIENTS) {
+
+		sem_post(&(srv->shared_lookup->lookup_mutex));
+		fprintf(stderr, "Cannot connect to server, too many clients!\n");
+		return -1;
+
+	}
+
+	srv->shared_lookup->lookup_table[srv->shared_lookup->clients_no].pid = getpid();
+	strncpy(srv->shared_lookup->lookup_table[srv->shared_lookup->clients_no].nickname, nickname, POORIRC_NICKNAME_MAX_LEN);
+	srv->shared_lookup->lookup_table[srv->shared_lookup->clients_no].active = 1;
+
+	srv->shared_lookup->clients_no++;
+
+	printf("Critical section end\n");
+
+	sem_post(&(srv->shared_lookup->lookup_mutex));
+
+	return 0;
+
 }

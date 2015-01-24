@@ -17,6 +17,8 @@
 #define POORIRC_MODE_DEBUG 0x01
 #define POORIRC_MODE_BG    0x02
 
+#define POORIRC_MAX_CLIENTS 32
+
 
 /*
  * struct poorIRC_config
@@ -39,13 +41,30 @@ struct poorIRC_config {
 
 };
 
-struct poorIRC_server_shared {
+struct poorIRC_server_shared_buffer {
 
 	/* Shared between forked processes */
 	struct poorIRC_message_srv buffer;
 	sem_t buffer_mutex;
 
 };
+
+struct poorIRC_server_lookup_entry {
+
+	pid_t pid;
+	char nickname[POORIRC_NICKNAME_MAX_LEN];
+	int active;
+
+};
+
+struct poorIRC_server_client_lookup_table {
+
+	struct poorIRC_server_lookup_entry lookup_table[POORIRC_MAX_CLIENTS];
+	int clients_no;
+	sem_t lookup_mutex;
+
+};
+
 	
 
 /*
@@ -67,17 +86,11 @@ struct poorIRC_server {
 	/* Internet Address of current client */
 	struct sockaddr_storage client_addr;
 
-	struct poorIRC_server_shared *shared_data;
+	struct poorIRC_server_shared_buffer *shared_buf;
+
+	struct poorIRC_server_client_lookup_table *shared_lookup;
 
 };
-
-
-struct poorIRC_client {
-
-	char nickname[POORIRC_NICKNAME_MAX_LEN];
-
-};
-
 
 /*
  * Initialization of server instance, returns 0 on success, and non-zero value
@@ -89,8 +102,9 @@ int poorIRC_init(struct poorIRC_config *cfg, struct poorIRC_server **srv);
 int poorIRC_wait_for_client(struct poorIRC_server *srv);
 int poorIRC_serve(struct poorIRC_server *srv);
 int poorIRC_process_message(struct poorIRC_message *msg, struct poorIRC_server *srv);
-int poorIRC_process_command(struct poorIRC_message *msg);
+int poorIRC_process_command(struct poorIRC_message *msg, struct poorIRC_server *srv);
 int poorIRC_broadcast_message(struct poorIRC_message *msg, struct poorIRC_server *srv);
+int poorIRC_register_client(char *nickname, struct poorIRC_server *srv);
 
 
 #endif /* _POORIRC_H */
