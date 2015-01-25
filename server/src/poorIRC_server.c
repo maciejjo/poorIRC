@@ -275,30 +275,11 @@ int poorIRC_serve(struct poorIRC_server *srv)
 
 		if(FD_ISSET(srv->client_fd, &readfds)) {
 		
-			if((num = recv(srv->client_fd, &(msg.len), sizeof(msg.len), 0)) == -1) {
-
-				fprintf(stderr, "Error: recv() failed with status "
-						"%s\n", strerror(errno));
-
-			}
-
-			if(num == 0) {
-
-				printf("(CHLD %d) Remote host closed connection. Bye!\n", mypid);
-				break;
-
-			}
-
-			if(num == -1) {
-
-				continue;
-
-			}
 
 			printf("(CHLD %d) Received length: %d\n", mypid, msg.len);
 			printf("(CHLD %d) Receiving message with given length...\n", mypid);
 
-			if((num = recv(srv->client_fd, &(msg.body), msg.len, 0)) == -1) {
+			if((num = recv(srv->client_fd, &(msg.body), POORIRC_MSG_MAX_LEN, 0)) == -1) {
 
 				fprintf(stderr, "(CHLD %d) Error: recv() failed with status "
 						"%s\n", mypid, strerror(errno));
@@ -347,6 +328,7 @@ int poorIRC_serve(struct poorIRC_server *srv)
 			printf("Message length: %d\n",strlen(srv->shared_lookup->lookup_table[srv->my_lookup_id].buffer.body) + 1);
 			srv->shared_lookup->lookup_table[srv->my_lookup_id].buffer.body[strlen(srv->shared_lookup->lookup_table[srv->my_lookup_id].buffer.body) + 1] = '\0';
 
+			/*
 			if(send(srv->client_fd, 
 			        &(srv->shared_lookup->lookup_table[srv->my_lookup_id].buffer.len), 
 			        sizeof(srv->shared_lookup->lookup_table[srv->my_lookup_id].buffer.len), 0) == -1) {
@@ -355,10 +337,11 @@ int poorIRC_serve(struct poorIRC_server *srv)
 						"%s\n", strerror(errno));
 
 			}
+			*/
 
 			if(send(srv->client_fd, 
 			        &(srv->shared_lookup->lookup_table[srv->my_lookup_id].buffer.body), 
-			        strlen(srv->shared_lookup->lookup_table[srv->my_lookup_id].buffer.body), 0) == -1) {
+			        POORIRC_MSG_MAX_LEN + POORIRC_NICKNAME_MAX_LEN + 1, 0) == -1) {
 
 				fprintf(stderr, "Error: send() failed with status: "
 						"%s\n", strerror(errno));
