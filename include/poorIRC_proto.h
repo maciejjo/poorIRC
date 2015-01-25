@@ -3,7 +3,7 @@
 
 #define POORIRC_MSG_MAX_LEN      128
 #define POORIRC_NICKNAME_MAX_LEN 16
-
+#define POORIRC_MSG_SRV_MAX_LEN  POORIRC_MSG_MAX_LEN + POORIRC_NICKNAME_MAX_LEN + 1
 /*
  * struct poorIRC_message
  * This structure is passed from clients to server.
@@ -18,8 +18,8 @@ struct poorIRC_message {
 
 struct poorIRC_message_srv {
 
-    unsigned char len;
-    char          body[POORIRC_MSG_MAX_LEN + POORIRC_NICKNAME_MAX_LEN + 1];
+	unsigned char len;
+	char          body[POORIRC_MSG_MAX_LEN + POORIRC_NICKNAME_MAX_LEN + 1];
 
 };
 
