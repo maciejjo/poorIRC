@@ -271,8 +271,6 @@ int poorIRC_serve(struct poorIRC_server *srv)
 		FD_ZERO(&readfds);
 		FD_SET(srv->client_fd, &readfds);
 
-		printf("(CHLD %d) In server loop\n", mypid);
-
 		select(srv->client_fd + 1, &readfds, NULL, NULL, &tv);
 
 		if(FD_ISSET(srv->client_fd, &readfds)) {
@@ -326,10 +324,6 @@ int poorIRC_serve(struct poorIRC_server *srv)
 			}
 			*/
 
-		} else {
-
-			printf("Select timeout\n");
-
 		}
 
 		sem_wait(&(srv->shared_lookup->mutex));
@@ -350,7 +344,7 @@ int poorIRC_serve(struct poorIRC_server *srv)
 
 			if(send(srv->client_fd, 
 			        &(srv->shared_lookup->lookup_table[srv->my_lookup_id].buffer.body), 
-			        srv->shared_lookup->lookup_table[srv->my_lookup_id].buffer.len, 0) == -1) {
+			        srv->shared_lookup->lookup_table[srv->my_lookup_id].buffer.len + 1, 0) == -1) {
 
 				fprintf(stderr, "Error: send() failed with status: "
 						"%s\n", strerror(errno));
@@ -362,9 +356,6 @@ int poorIRC_serve(struct poorIRC_server *srv)
 		}
 
 		sem_post(&(srv->shared_lookup->mutex));
-
-
-		printf("(CHLD %d) End of loop.\n", mypid);
 
 	}
 
