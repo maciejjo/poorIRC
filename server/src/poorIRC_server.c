@@ -323,9 +323,9 @@ int poorIRC_serve(struct poorIRC_server *srv)
 
 			poorIRC_process_message(&msg, srv);
 
+			/*
 			printf("(CHLD %d) Sending OK status to client.\n", mypid);
 
-			/*
 			res.status = POORIRC_STATUS_OK;
 
 			if(send(srv->client_fd, &res, sizeof(res), 0) == -1) {
@@ -344,7 +344,9 @@ int poorIRC_serve(struct poorIRC_server *srv)
 
 			printf("Found client with dirty status\n");
 			printf("Message body: %s\n",srv->shared_lookup->lookup_table[srv->my_lookup_id].buffer.body);
+			printf("Message length: %d\n",strlen(srv->shared_lookup->lookup_table[srv->my_lookup_id].buffer.body) + 1);
 
+			sleep(1);
 			if(send(srv->client_fd, 
 			        &(srv->shared_lookup->lookup_table[srv->my_lookup_id].buffer.len), 
 			        sizeof(srv->shared_lookup->lookup_table[srv->my_lookup_id].buffer.len), 0) == -1) {
@@ -356,12 +358,14 @@ int poorIRC_serve(struct poorIRC_server *srv)
 
 			if(send(srv->client_fd, 
 			        &(srv->shared_lookup->lookup_table[srv->my_lookup_id].buffer.body), 
-			        srv->shared_lookup->lookup_table[srv->my_lookup_id].buffer.len + 1, 0) == -1) {
+			        strlen(srv->shared_lookup->lookup_table[srv->my_lookup_id].buffer.body) + 1, 0) == -1) {
 
 				fprintf(stderr, "Error: send() failed with status: "
 						"%s\n", strerror(errno));
 
 			}
+			
+			sleep(1);
 
 			srv->shared_lookup->lookup_table[srv->my_lookup_id].dirty = 0;
 

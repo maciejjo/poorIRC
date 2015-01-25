@@ -71,10 +71,11 @@ int main(int argc, char **argv)
 
 		}
 
-		recv(socket, &(srv.len), sizeof(srv.len), 0);
-		recv(socket, &(srv.body), srv.len, 0);
+		if(recv(socket, &(srv.len), sizeof(srv.len), 0) != -1 && recv(socket, &(srv.body), srv.len, 0) != -1) {
 
-		printf("got: %s\n", srv.body);
+			printf("got: %s\n", srv.body);
+
+		}
 
 		printf("Success!\n");
 
