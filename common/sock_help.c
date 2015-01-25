@@ -166,19 +166,19 @@ int poor_send(const int socket, const char *message){
     msg.len = strlen(message) + 1;
     printf("len sent: %d\nlen originally: %d", msg.len, strlen(message)+1);
     if(0 == msg.len - 1)
-        return -1; /* you have to actually send something */
+        return -1;  you have to actually send something
     else if (POORIRC_MSG_MAX_LEN < msg.len){
-        return -1; /* too much */
+        return -1;  too much
     }
     else{
         if (-1 == send(socket, (char *)&(msg.len), sizeof(msg.len), 0)){
-            return -1; /* error with sending */
+            return -1;  error with sending
         }
         strncpy(msg.body,message, msg.len);
     }
     Sleep(1000);
     if(-1 == (send(socket, (char *)&(msg.body), msg.len, 0))) {
-        return -1; /* error with sending actual message */
+        return -1; /* error with sending actual message
     }
     printf("orginal: %s\nlength: %c\nsent: %s", message,msg.len, msg.body);
     return 0;
