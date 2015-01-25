@@ -18,6 +18,9 @@ int main(int argc, char **argv)
 
 	struct poorIRC_response res;
 	struct poorIRC_message  msg;
+	struct poorIRC_message_srv srv;
+
+	srv.body[0] = '\0';
 
 	printf("Welcome to poorIRC client\n");
 
@@ -34,6 +37,8 @@ int main(int argc, char **argv)
 		return EXIT_FAILURE;
 
 	}
+
+	modify_tcp_socket(socket, SOCKET_NOBL);
 
 	printf("Socket successfully obtained\n");
 
@@ -66,21 +71,12 @@ int main(int argc, char **argv)
 
 		}
 
+		recv(socket, &(srv.len), sizeof(srv.len), 0);
+		recv(socket, &(srv.body), srv.len, 0);
+
+		printf("got: %s\n", srv.body);
+
 		printf("Success!\n");
-		printf("Waiting for server response...\n");
-
-		if((num = recv(socket, &res, sizeof(res), 0)) == -1) {
-
-			fprintf(stderr, "Error: recv() failed with status: %s\n", strerror(errno));
-			return EXIT_FAILURE;
-
-		}
-
-		if(res.status == POORIRC_STATUS_OK) {
-
-			printf("Status OK received\n");
-
-		}
 
 	}
 
