@@ -68,11 +68,10 @@ void client::on_connectButton_clicked()
     strcat(set_nick, "/nick ");
     strcat(set_nick, nick);
 
-    if(-1 == poor_send(socket, set_nick)){
+    if(-1 == send(socket, (char *)set_nick, POORIRC_MSG_MAX_LEN, 0)){
         free(set_nick);
         return;
-    }
-    else {
+    }else {
         ui->connectErrorLabel->setText("");
         ui->sendButton->setEnabled(true);
         ui->sendMessage->setEnabled(true);
@@ -95,14 +94,13 @@ void client::on_sendButton_clicked()
     char *message = ui->sendMessage->text().toLocal8Bit().data();
     strcat(message,"\0");
 
-    if(0 == poor_send(socket, message))
-        ui->sendMessage->clear();
-
+    send(socket, (char *)message, POORIRC_MSG_MAX_LEN, 0);
 }
 
 void client::dataReceived(){
-   struct poorIRC_message_srv res;
-   poor_recv(socket, &res);
-   ui->serverMessages->append(res.body);
+   char *res = (char *)calloc(POORIRC_MSG_MAX_LEN + POORIRC_NICKNAME_MAX_LEN + 1, sizeof(char));
+   recv(socket, res, POORIRC_MSG_MAX_LEN + POORIRC_NICKNAME_MAX_LEN + 1,0);
+   ui->serverMessages->append(res);
+   free(res);
 
 }
