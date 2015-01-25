@@ -36,7 +36,7 @@ int get_tcp_socket(const char *port, char *hostname, char flags)
 #endif
 
 	memset(&hints, 0, sizeof(hints));
-	hints.ai_family        = AF_UNSPEC;
+    hints.ai_family        = AF_INET;
 	hints.ai_socktype      = SOCK_STREAM;
 
 	if(hostname == NULL) {
@@ -53,15 +53,16 @@ int get_tcp_socket(const char *port, char *hostname, char flags)
 	}
 #endif
 	
+printf("PORT %s\n", port);
 
-
-	if((rv = getaddrinfo(hostname, port, &hints, &address_list)) != 0) {
+    if((rv = getaddrinfo(hostname, "2222", &hints, &address_list)) != 0) {
 #ifdef __linux__
 		fprintf(stderr, "Error: getaddrinfo failed with status: %s\n",
 				gai_strerror(rv));
 
 #elif _WIN32
-        fprintf(stderr, "Error: getaddrinfo failed.\n");
+        fprintf(stderr, "Error: getaddrinfo failed with status: %d\n",
+                rv);
 
 #endif
 		return -1;
@@ -178,7 +179,7 @@ int poor_send(const int socket, const char *message){
     }
     Sleep(1000);
     if(-1 == (send(socket, (char *)&(msg.body), msg.len, 0))) {
-        return -1; error with sending actual message
+        return -1; /* error with sending actual message
     }
     printf("orginal: %s\nlength: %c\nsent: %s", message,msg.len, msg.body);
     return 0;
