@@ -161,6 +161,7 @@ int get_tcp_socket(const char *port, char *hostname, char flags)
 
 int poor_send(const int socket, const char *message){
 
+
     struct poorIRC_message msg;
 
     msg.len = strlen(message) + 1;
@@ -175,7 +176,7 @@ int poor_send(const int socket, const char *message){
         }
         strncpy(msg.body,message, msg.len);
     }
-
+printf("message : %s",msg.body);
     if(-1 == (send(socket, (char *)&(msg.body), msg.len, 0))) {
         return -1; /* error with sending actual message */
     }
