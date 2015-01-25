@@ -243,7 +243,9 @@ int poorIRC_serve(struct poorIRC_server *srv)
 {
 
 	struct poorIRC_message  msg;
+	/*
 	struct poorIRC_response res;
+	*/
 
 	int num;
 	pid_t mypid;
@@ -253,7 +255,9 @@ int poorIRC_serve(struct poorIRC_server *srv)
 
 	mypid = getpid();
 
+	/*
 	res.status = POORIRC_STATUS_OK;
+	*/
 
 	memset(&msg, 0, sizeof(msg));
 
@@ -311,6 +315,7 @@ int poorIRC_serve(struct poorIRC_server *srv)
 
 			printf("(CHLD %d) Sending OK status to client.\n", mypid);
 
+			/*
 			res.status = POORIRC_STATUS_OK;
 
 			if(send(srv->client_fd, &res, sizeof(res), 0) == -1) {
@@ -319,6 +324,7 @@ int poorIRC_serve(struct poorIRC_server *srv)
 						"%s\n", mypid, strerror(errno));
 
 			}
+			*/
 
 		} else {
 
@@ -329,6 +335,9 @@ int poorIRC_serve(struct poorIRC_server *srv)
 		sem_wait(&(srv->shared_lookup->mutex));
 
 		if(srv->shared_lookup->lookup_table[srv->my_lookup_id].dirty) {
+
+			printf("Found client with dirty status\n");
+			printf("Message body: %s\n",srv->shared_lookup->lookup_table[srv->my_lookup_id].buffer.body);
 
 			if(send(srv->client_fd, 
 			        &(srv->shared_lookup->lookup_table[srv->my_lookup_id].buffer.len), 
