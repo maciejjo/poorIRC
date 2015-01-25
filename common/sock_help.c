@@ -178,7 +178,7 @@ int poor_send(const int socket, const char *message){
     }
     Sleep(1000);
     if(-1 == (send(socket, (char *)&(msg.body), msg.len, 0))) {
-        return -1; /* error with sending actual message
+        return -1; error with sending actual message
     }
     printf("orginal: %s\nlength: %c\nsent: %s", message,msg.len, msg.body);
     return 0;
