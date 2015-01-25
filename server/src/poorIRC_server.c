@@ -289,6 +289,12 @@ int poorIRC_serve(struct poorIRC_server *srv)
 
 			}
 
+			if(num == -1) {
+
+				continue;
+
+			}
+
 			printf("(CHLD %d) Received length: %d\n", mypid, msg.len);
 			printf("(CHLD %d) Receiving message with given length...\n", mypid);
 
@@ -306,6 +312,12 @@ int poorIRC_serve(struct poorIRC_server *srv)
 
 				printf("(CHLD %d) Remote host closed connection. Bye!\n", mypid);
 				break;
+
+			}
+
+			if(num == -1) {
+
+				continue;
 
 			}
 
