@@ -19,7 +19,11 @@ struct poorIRC_message {
 struct poorIRC_message_srv {
 
 	unsigned char len;
+<<<<<<< HEAD
     char          body[POORIRC_MSG_MAX_LEN + POORIRC_NICKNAME_MAX_LEN + 1];
+=======
+	char          body[POORIRC_MSG_MAX_LEN + POORIRC_NICKNAME_MAX_LEN + 1];
+>>>>>>> parent of 24d6cce... happy pronto fighting
 
 };
 
