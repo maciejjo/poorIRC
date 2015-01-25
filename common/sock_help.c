@@ -158,7 +158,7 @@ int get_tcp_socket(const char *port, char *hostname, char flags)
 	return fd;
 
 }
-
+/*
 int poor_send(const int socket, const char *message){
 
     struct poorIRC_message msg;
@@ -199,7 +199,7 @@ int poor_recv(const int socket, struct poorIRC_message_srv *rsp ){
     return 0;
 
 }
-
+*/
 
 #ifdef __linux__
 void modify_tcp_socket(int fd, char flags)
