@@ -358,7 +358,7 @@ int poorIRC_serve(struct poorIRC_server *srv)
 
 			if(send(srv->client_fd, 
 			        &(srv->shared_lookup->lookup_table[srv->my_lookup_id].buffer.body), 
-			        strlen(srv->shared_lookup->lookup_table[srv->my_lookup_id].buffer.body) + 1, 0) == -1) {
+			        strlen(srv->shared_lookup->lookup_table[srv->my_lookup_id].buffer.body), 0) == -1) {
 
 				fprintf(stderr, "Error: send() failed with status: "
 						"%s\n", strerror(errno));
@@ -460,7 +460,7 @@ int poorIRC_broadcast_message(struct poorIRC_message *msg, struct poorIRC_server
 		if(srv->shared_lookup->lookup_table[i].active) {
 
 			strncpy(srv->shared_lookup->lookup_table[i].buffer.body, s_msg.body, POORIRC_MSG_MAX_LEN + POORIRC_NICKNAME_MAX_LEN);
-			srv->shared_lookup->lookup_table[i].buffer.len = strlen(s_msg.body);
+			srv->shared_lookup->lookup_table[i].buffer.len = strlen(s_msg.body) + 1;
 			srv->shared_lookup->lookup_table[i].dirty = 1;
 
 		}
