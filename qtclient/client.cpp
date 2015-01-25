@@ -102,7 +102,6 @@ void client::on_sendButton_clicked()
 
 void client::dataReceived(){
    struct poorIRC_message_srv res;
-
    poor_recv(socket, &res);
    ui->serverMessages->append(res.body);
 
