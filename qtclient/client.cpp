@@ -12,14 +12,14 @@ client::client(QWidget *parent) :
     ui->sendMessage->setMaxLength(POORIRC_MSG_MAX_LEN-1);
 
     //IPv4 validation
-/*    QString ipRange = "(?:[0-1]?[0-9]?[0-9]|2[0-4][0-9]|25[0-5])";
+    QString ipRange = "(?:[0-1]?[0-9]?[0-9]|2[0-4][0-9]|25[0-5])";
     QRegExp ipRegex ("^" + ipRange
                      + "\\." + ipRange
                      + "\\." + ipRange
                      + "\\." + ipRange + "$");
     QRegExpValidator *ipValidator = new QRegExpValidator(ipRegex, this);
-*/
-    //ui->ipEdit->setValidator(ipValidator);
+
+    ui->ipEdit->setValidator(ipValidator);
 }
 
 
@@ -42,18 +42,20 @@ void client::on_connectButton_clicked()
         return;
     }
 
-    //&& !ui->ipEdit->hasAcceptableInput()
     //Validate port and host
-    if(!ui->portNumber->hasAcceptableInput()){
+    if(!ui->portNumber->hasAcceptableInput()
+            && !ui->ipEdit->hasAcceptableInput()){
         ui->connectErrorLabel->setText("Invalid port!");
         return;
     }
     //just to be readible
-    char *host = ui->ipEdit->text().toLocal8Bit().data();
-    char *port = ui->portNumber->text().toLocal8Bit().data();
+    char host[17];
+    strcpy(host,ui->ipEdit->text().toLocal8Bit().data());
+    char port[6];
+    strcpy(port,ui->portNumber->text().toLocal8Bit().data());
 
     printf("PORT %s\n", port);
-    nick = ui->nickEdit->text().toLocal8Bit().data();
+    strcpy(nick,ui->nickEdit->text().toLocal8Bit().data());
     strcat(nick, "\0");
 
     if(-1 == (socket = get_tcp_socket(port, host, SOCKET_CONN))){
@@ -96,6 +98,8 @@ void client::on_sendButton_clicked()
     strcat(message,"\0");
 
     send(socket, (char *)message, POORIRC_MSG_MAX_LEN, 0);
+
+    ui->sendMessage->clear();
 }
 
 void client::dataReceived(){
