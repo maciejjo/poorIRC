@@ -73,6 +73,7 @@ int main(int argc, char **argv)
 
 		if(recv(socket, &(srv.len), sizeof(srv.len), 0) != -1 && recv(socket, &(srv.body), srv.len, 0) != -1) {
 
+			printf("len: %d\n", srv.len);
 			printf("got: %s\n", srv.body);
 
 		}

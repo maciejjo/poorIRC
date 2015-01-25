@@ -266,8 +266,8 @@ int poorIRC_serve(struct poorIRC_server *srv)
 	while(1) {
 
 
-		tv.tv_sec = 2;
-		tv.tv_usec = 500000;
+		tv.tv_sec = 0;
+		tv.tv_usec = 250000;
 		FD_ZERO(&readfds);
 		FD_SET(srv->client_fd, &readfds);
 
@@ -345,8 +345,8 @@ int poorIRC_serve(struct poorIRC_server *srv)
 			printf("Found client with dirty status\n");
 			printf("Message body: %s\n",srv->shared_lookup->lookup_table[srv->my_lookup_id].buffer.body);
 			printf("Message length: %d\n",strlen(srv->shared_lookup->lookup_table[srv->my_lookup_id].buffer.body) + 1);
+			srv->shared_lookup->lookup_table[srv->my_lookup_id].buffer.body[strlen(srv->shared_lookup->lookup_table[srv->my_lookup_id].buffer.body) + 1] = '\0';
 
-			sleep(1);
 			if(send(srv->client_fd, 
 			        &(srv->shared_lookup->lookup_table[srv->my_lookup_id].buffer.len), 
 			        sizeof(srv->shared_lookup->lookup_table[srv->my_lookup_id].buffer.len), 0) == -1) {
@@ -365,7 +365,6 @@ int poorIRC_serve(struct poorIRC_server *srv)
 
 			}
 			
-			sleep(1);
 
 			srv->shared_lookup->lookup_table[srv->my_lookup_id].dirty = 0;
 
